@@ -2,12 +2,11 @@ import React, { Component } from 'react';
 import { render } from 'react-dom';
 import { Router, Route, IndexRoute, browserHistory } from 'react-router'
 import './index.css';
-import Timetable from './Timetable.js';
-import Bookings from './Bookings.js';
-import './App.css';
 import 'bootstrap/dist/css/bootstrap.css';
-import Header from './Header.js';
-import Facilities from './Facility.js';
+import Timetable from './Timetable';
+import Bookings from './Bookings';
+import Header from './Header';
+import Facilities from './Facility';
 
 class App extends Component {
   render() {
