@@ -25,7 +25,10 @@ export default class Header extends Component {
         <Collapse isOpen={this.state.isOpen} navbar>
           <Nav className="ml-auto" navbar>
             <NavItem>
-              <NavLink href="/bookings/">Bookings</NavLink>
+              <NavLink href="/bookings/">My bookings</NavLink>
+            </NavItem>
+            <NavItem>
+              <NavLink href="/logout/">Log out</NavLink>
             </NavItem>
           </Nav>
         </Collapse>
