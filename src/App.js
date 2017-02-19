@@ -1,46 +1,38 @@
 import React, { Component } from 'react';
-import logo from './logo.svg';
 import './App.css';
 import 'bootstrap/dist/css/bootstrap.css';
-import { Container, Row} from 'reactstrap';
+import { Container, Row } from 'reactstrap';
 import Header from './Header.js';
+import Facility from './Facility.js';
 
 class App extends Component {
 
   constructor() {
     super();
     this.state = {
-      facilities: ['Glass Rooms', 'Berkeley', 'Hamilton', 'John Stearne']
+      facilities: [ { name: 'Glass Rooms', image: require('./img/berkeley.jpg') },
+                    { name: 'Berkeley', image: require('./img/berkeley.jpg') },
+                    { name: 'Hamilton', image: require('./img/berkeley.jpg') },
+                    { name: 'John Stearne', image: require('./img/berkeley.jpg') } ]
     };
   }
 
   render() {
 
     var facilityComponents = this.state.facilities.map(f =>
-      <Facility key={f} name={f}/>
+      <Facility key={f.name} name={f.name} image={f.image}/>
     );
 
     return (
       <div className="App">
       <Header/>
-      <Container className="facilities">
+
+      <Container>
+      <Row className='mt-4'>
       {facilityComponents}
+      </Row>
       </Container>
       </div>
-    );
-  }
-}
-
-class Facility extends React.Component {
-  render() {
-    return (
-      <a role="button" onClick={() => alert("foo")}>
-        <Row>
-          <div className="facility">
-            <h1>{this.props.name}</h1>
-          </div>
-        </Row>
-      </a>
     );
   }
 }

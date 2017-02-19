@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { Navbar, Nav, NavLink, Collapse, NavItem, NavbarBrand, NavbarToggler } from 'reactstrap';
 
-export default class Header extends React.Component {
+export default class Header extends Component {
 
   constructor(props) {
     super(props);
