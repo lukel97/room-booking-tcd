@@ -1,3 +1,5 @@
+#TCD Room Booking App [![Build Status](https://travis-ci.com/Bubba/room-booking-tcd.svg?token=Wqfee95SqTKzjdVWdZ2t&branch=master)](https://travis-ci.com/Bubba/room-booking-tcd)
+
 This project was bootstrapped with [Create React App](https://github.com/facebookincubator/create-react-app).
 
 Below you will find some information on how to perform common tasks.<br>
