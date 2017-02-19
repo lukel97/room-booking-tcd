@@ -23,8 +23,8 @@ render(
   <Router history={browserHistory}>
     <Route path='/' component={App}>
       <IndexRoute component={Facilities}/>
-      <Route path=':facility' component={Timetable}/>
       <Route path='bookings' component={Bookings}/>
+      <Route path=':facility' component={Timetable}/>
     </Route>
   </Router>,
   document.getElementById('root')
