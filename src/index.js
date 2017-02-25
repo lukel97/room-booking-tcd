@@ -67,8 +67,6 @@ class App extends Component {
   }
 
   render() {
-    let children = this.state.isSignedIn ? this.props.children : <Login/>
-    
     return (
       <div>
       <Header isSignedIn={this.state.isSignedIn}/>
