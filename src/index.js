@@ -8,7 +8,6 @@ import Bookings from './Bookings';
 import Header from './Header';
 import Facilities from './Facility';
 import Rooms from './Rooms';
-import Login from './Login';
 
 class App extends Component {
   
@@ -64,7 +63,7 @@ class App extends Component {
   }
     
   onSignIn(googleUser) {
-    
+
   }
 
   render() {
