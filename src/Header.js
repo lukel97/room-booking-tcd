@@ -32,7 +32,7 @@ export default class Header extends Component {
           <NavLink href="/" onClick={this.signOut}>Log out</NavLink>
         </NavItem>);
     } else {
-      navItems.push(<NavItem id='signIn'></NavItem>);
+      navItems.push(<NavItem id="signIn" key="signIn"></NavItem>);
     }
     return (
       <Navbar color="faded" light toggleable>
