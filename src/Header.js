@@ -35,7 +35,7 @@ export default class Header extends Component {
       navItems.push(<NavItem id="signIn" key="signIn"></NavItem>);
     }
     return (
-      <Navbar color="faded" light toggleable>
+      <Navbar color="faded" light toggleable className="mb-4">
         <NavbarToggler right onClick={this.toggle} />
         <NavbarBrand href="/">Trinity Room Booking</NavbarBrand>
         <Collapse isOpen={this.state.isOpen} navbar>

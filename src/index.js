@@ -6,7 +6,7 @@ import 'bootstrap/dist/css/bootstrap.css';
 import Timetable from './Timetable';
 import Bookings from './Bookings';
 import Header from './Header';
-import Facilities from './Facility';
+import Facilities, { Facility } from './Facility';
 import Rooms from './Rooms';
 
 class App extends Component {
@@ -15,7 +15,7 @@ class App extends Component {
     super(props);
     
     this.state = {
-      isSignedIn: true
+      isSignedIn: false
     };
   }
   
@@ -75,14 +75,19 @@ class App extends Component {
     );
   }
 }
+                      
+const facilities = [new Facility("Glass Rooms", require("./img/berkeley.jpg")),
+                    new Facility("Berkeley", require("./img/berkeley.jpg")),
+                    new Facility("Hamilton", require("./img/berkeley.jpg")),
+                    new Facility("John Stearne", require("./img/berkeley.jpg"))];
 
 render(
   <Router history={browserHistory}>
     <Route path='/' component={App}>
-      <IndexRoute component={Facilities}/>
+      <IndexRoute component={Facilities} facilities={facilities}/>
       <Route path='bookings' component={Bookings}/>
-      <Route path=':facility/:time' component={Rooms}/>
-      <Route path=':facility' component={Timetable}/>
+      <Route path=':facility/:time' component={Rooms} facilities={facilities}/>
+      <Route path=':facility' component={Timetable} facilities={facilities}/>
     </Route>
   </Router>,
   document.getElementById('root')

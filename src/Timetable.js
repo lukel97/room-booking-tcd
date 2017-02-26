@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router';
-import { Container, ListGroup, ListGroupItem, Nav, NavItem, NavLink } from 'reactstrap';
+import { Container, ListGroup, ListGroupItem, Nav, NavItem, NavLink, Breadcrumb, BreadcrumbItem } from 'reactstrap';
 
 function getTimesForDate(date) {
   var times = Array(24);
@@ -12,7 +12,8 @@ function getTimesForDate(date) {
     times[i] = time;
   }
   
-  return times;
+  //Only return dates in the future
+  return times.filter(t => t > new Date());
 }
 
 export default class Timetable extends Component {
@@ -25,7 +26,8 @@ export default class Timetable extends Component {
     this.state = {
       isCalendarOpen: false,
       currentDate: now,
-      times: getTimesForDate(now)
+      times: getTimesForDate(now),
+      facility: this.props.route.facilities.filter(f=>f.getURLName() === this.props.params.facility)[0]
     };
     
     this.openCalendar = this.openCalendar.bind(this);
@@ -46,6 +48,9 @@ export default class Timetable extends Component {
   }
   
   render() {
+    if(this.state.facility == null)
+      return <h1>This facility doesn't exist</h1>
+    
     let now = new Date();
     let week = [...Array(14).keys()].map(i => {
       let date = new Date();
@@ -64,8 +69,11 @@ export default class Timetable extends Component {
       let options = { hour: '2-digit', minute: '2-digit' };
       
       let label = time.toLocaleString('en-GB', options);
+      
+      //TODO: Pass the time in a better way
+      let link = time.toUTCString();
     
-      return (<ListGroupItem tag={Link} to={`${this.props.params.facility}/${time.getHours()}`} action className="timeslot">
+      return (<ListGroupItem tag={Link} to={`${this.props.params.facility}/${link}`} action className="timeslot">
           <span className="time">{label}</span>
           <span className="roomsAvailable ml-4">3 rooms</span>
           <span className="ml-4">4💺 6💺</span>
@@ -75,7 +83,10 @@ export default class Timetable extends Component {
 
     return (
       <Container>
-        <h3 className='mt-4'>{this.props.params.facility}</h3>
+        <Breadcrumb>
+          <BreadcrumbItem tag={Link} to="/">Home</BreadcrumbItem>
+          <BreadcrumbItem active>{this.state.facility.name}</BreadcrumbItem>
+        </Breadcrumb>
         
         <ListGroup className='mt-4'>
           <ListGroupItem style={scrollableStyle}>

@@ -3,22 +3,13 @@ import { Container, Row, Col, Card, CardTitle, CardSubtitle, CardImg, CardImgOve
 import { Link } from 'react-router';
 
 export default class Facilities extends Component {
-  constructor() {
-    super();
-    this.state = {
-      facilities: [ { name: 'Glass Rooms', image: require('./img/berkeley.jpg') },
-                    { name: 'Berkeley', image: require('./img/berkeley.jpg') },
-                    { name: 'Hamilton', image: require('./img/berkeley.jpg') },
-                    { name: 'John Stearne', image: require('./img/berkeley.jpg') } ]
-    };
-  }
 
   render() {
     return (
       <Container>
         <Row className='mt-4'>
-          {this.state.facilities.map(f =>
-            <Facility key={f.name} name={f.name} image={f.image}/>
+          {this.props.route.facilities.map(f =>
+            <FacilityComponent key={f.name} facility={f}/>
           )}
         </Row>
       </Container>
@@ -27,16 +18,27 @@ export default class Facilities extends Component {
 
 }
 
-class Facility extends Component {
+export class Facility {
+  constructor(name, image) {
+    this.name = name;
+    this.image = image;
+  }
+  
+  getURLName() {
+    return this.name.replace(/\s+/g, '-').toLowerCase();
+  }
+}
+
+class FacilityComponent extends Component {
 
  render() {
     return (
         <Col xs='12' lg='3'>
-          <Link to={this.props.name.replace(/\s+/g, '-').toLowerCase() }>
+          <Link to={this.props.facility.getURLName()} >
             <Card inverse>
-              <CardImg height='200px' style={{objectFit: 'cover'}} src={this.props.image}/>
+              <CardImg height='200px' style={{objectFit: 'cover'}} src={this.props.facility.image}/>
               <CardImgOverlay>
-                <CardTitle>{this.props.name}</CardTitle>
+                <CardTitle>{this.props.facility.name}</CardTitle>
                 <CardSubtitle>3 rooms free</CardSubtitle>
               </CardImgOverlay>
             </Card>
