@@ -111,7 +111,6 @@ export default class Timetable extends Component {
     
       return (<ListGroupItem tag={Link} to={`${this.props.params.facility}/${link}`} action className="timeslot">
           <span className="time">{label}</span>
-          <!-- TODO: workout free rooms -->
           <span className="roomsAvailable ml-4">{timeslot.rooms} rooms booked</span>
           <span className="ml-4">4💺 6💺</span>
           <span className="ml-4">📈📺</span>
