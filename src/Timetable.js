@@ -2,43 +2,34 @@ import React, { Component } from 'react';
 import { Link } from 'react-router';
 import { Container, ListGroup, ListGroupItem, Nav, NavItem, NavLink, Breadcrumb, BreadcrumbItem } from 'reactstrap';
 
-function isToday(now, date) {
-  return date.getDate() === now.getDate() && date.getMonth() === now.getMonth() && date.getYear() === now.getYear();
-}
-
-function getTimesForDate(now) {
-  return fetch("/facilities/glass-rooms")
+function getTimeslots(date) {
+  let params = "?date=" + encodeURIComponent(date.toISOString());
+  return fetch("/facilities/glass-rooms" + params, {method: 'get'})
     .then(response => response.json())
     .then(rooms => 
       rooms.map(room => {
-        room.times = room.times.map(time => new Date(time));
-        
-        //Only use dates on today
-        room.times = room.times.filter(isToday.bind(null, now));
-        
+        room.bookings = room.bookings.map(booking => new Date(booking));
         return room;
       })
     )
     .then(rooms => {
-      var timeslots = new Array(24);
+      let timeslots = new Array(24);
       for(var i = 0; i < 24; i++) {
-        var time = new Date(now.getTime());
+        var time = new Date(date.getTime());
         time.setHours(i);
         time.setMinutes(0);
         time.setSeconds(0);
-        timeslots[i] = { time: time, rooms: 0 };
+        timeslots[i] = { time: time, roomsFree: rooms};
       }
-      
       rooms.forEach(room => {
-        console.log(room);
-        room.times.forEach(time => {
-          console.log("asdf" + time.getHours());
-          timeslots[time.getHours()].rooms += 1;
+        room.bookings.forEach(time => {
+          let newFreeRooms = timeslots[time.getHours()].roomsFree.filter(r => r.roomNumber !== room.roomNumber);
+          timeslots[time.getHours()].roomsFree = newFreeRooms;
         });
       });
       
       //Only return dates in the future
-      return timeslots.filter(slot => slot.time > now);
+      return timeslots.filter(slot => slot.time > date);
     });
 }
 
@@ -54,18 +45,12 @@ export default class Timetable extends Component {
       facility: this.props.route.facilities.filter(f=>f.getURLName() === this.props.params.facility)[0]
     };
     
-    getTimesForDate(new Date()).then(timeslots => {
-      this.setState({
-        timeslots: timeslots
-      });
-    }, error => {
-      console.log(error);
-    });
-    
-    // console.log(this.state.timeslots);
-    
     this.openCalendar = this.openCalendar.bind(this);
     this.changeDate = this.changeDate.bind(this);
+  }
+  
+  componentDidMount() {
+    this.changeDate(new Date());
   }
   
   openCalendar() {
@@ -76,9 +61,14 @@ export default class Timetable extends Component {
   
   changeDate(date) {
     this.setState({
-      currentDate: date,
-      times: getTimesForDate(date)
+      currentDate: date
     });
+    
+    getTimeslots(date).then(timeslots => {
+      this.setState({
+        timeslots: timeslots
+      });
+    }, error => console.log);
   }
   
   render() {
@@ -89,6 +79,13 @@ export default class Timetable extends Component {
     let week = [...Array(14).keys()].map(i => {
       let date = new Date();
       date.setDate(now.getDate() + i);
+      
+      //Set dates after tomorrow to 12am
+      if(i != 0) {
+        date.setHours(0);
+        date.setMinutes(0);
+        date.setSeconds(0);
+      }
       return date;
     });
 
@@ -106,13 +103,18 @@ export default class Timetable extends Component {
       
       let label = time.toLocaleString('en-GB', options);
       
+      let capacities = timeslot.roomsFree.map(r => r.capacity);
+      let maxCapacity = Math.max(...capacities);
+      
       //TODO: Pass the time in a better way
       let link = time.toUTCString();
     
-      return (<ListGroupItem tag={Link} to={`${this.props.params.facility}/${link}`} action className="timeslot">
+      return (<ListGroupItem tag={Link} to={`${this.props.params.facility}/${link}`} action className="timeslot" disabled={timeslot.roomsFree.length <= 0}>
           <span className="time">{label}</span>
-          <span className="roomsAvailable ml-4">{timeslot.rooms} rooms booked</span>
-          <span className="ml-4">4💺 6💺</span>
+          <span className="roomsAvailable ml-4">{timeslot.roomsFree.length} rooms free</span>
+          {
+            timeslot.roomsFree.length > 0 && <span className="ml-4">{maxCapacity}💺</span>
+          }
           <span className="ml-4">📈📺</span>
       </ListGroupItem>);
     };

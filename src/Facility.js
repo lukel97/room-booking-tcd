@@ -9,7 +9,7 @@ export default class Facilities extends Component {
       <Container>
         <Row className='mt-4'>
           {this.props.route.facilities.map(f =>
-            <FacilityComponent key={f.name} facility={f}/>
+            <FacilityCard key={f.name} facility={f}/>
           )}
         </Row>
       </Container>
@@ -29,7 +29,7 @@ export class Facility {
   }
 }
 
-class FacilityComponent extends Component {
+class FacilityCard extends Component {
 
  render() {
     return (

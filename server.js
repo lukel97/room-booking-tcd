@@ -15,9 +15,9 @@ function range(begin, end, interval = 1) {
 }
 
 app.get('/facilities/:name/', (req, res) => {
-	
+	let date = new Date(req.query.date);
 	//Return the times for all the rooms
-	Promise.all(range(1, 9).map(getGlassRoomTimes)).then(times => {
+	Promise.all(range(1, 9).map(getGlassRoomTimes.bind(null, date))).then(times => {
 		res.end(JSON.stringify(times));
 	});
 });
@@ -29,30 +29,51 @@ const server = app.listen(4000, () => {
   console.log("Listening at http://%s:%s", host, port)
 });
 
-function getGlassRoomTimes(room) {
+function getGlassRoomTimes(date, room) {
+	let requestData = `Month=${(date.getMonth() + 1)}&Year=${date.getFullYear()}`;
 	const options = {
 	  protocol: 'https:',
 	  host: 'www.scss.tcd.ie',
 	  path: `/cgi-bin/webcal/sgmr/sgmr${room}.pl`,
 	  //args 2 and 3 are the username and password
-	  auth: process.argv.slice(2, 4).join(":")
+	  auth: process.argv.slice(2, 4).join(":"),
+	  method: "SUBMIT",
+	  headers: {
+		  "Content-Length": requestData.length,
+		  "Content-Type": "application/x-www-form-urlencoded"
+	  }
 	};
 	
 	return new Promise((resolve, reject) => {
-		https.get(options, function(res) {
+		let request = https.request(options, function(res) {
 			let rawData = '';
 			res.on('data', (chunk) => rawData += chunk);
 			res.on('end', () => {
-			try {
-				let monthBookings = scrapeBookedTimesGlassrooms(rawData);
-				let object = { room: room, times: monthBookings };
-				resolve(object);
-			  } catch(e) {
-				reject(e)
-			  }
+				try {
+					resolve({
+						roomNumber: room,
+						capacity: getRoomCapacity(rawData),
+						bookings: scrapeBookedTimesGlassrooms(rawData).filter(isToday.bind(null, date))
+					});
+				} catch(e) {
+					reject(e)
+				}
 			});
 		});
+		
+		request.write(requestData);
+		request.end();
 	});
+}
+
+function isToday(now, date) {
+	return date.getDate() === now.getDate() && date.getMonth() === now.getMonth() && date.getYear() === now.getYear();
+}
+
+function getRoomCapacity(data) {
+	let header = cheerio.load(data)("h1:contains(Capacity)").text();
+	let capacity = header.match(".*Capacity ([0-9]+)")[1];
+	return parseInt(capacity);
 }
 
 function scrapeBookedTimesGlassrooms(data) {
@@ -75,6 +96,7 @@ function scrapeBookedTimesGlassrooms(data) {
 	  arr.push(tempArr[i]);
 	}
 	});
+	
 	// ***** FINISHED SCRAPING *****
 	
 	// Arr hopefully has all the necessary data to be parsed
