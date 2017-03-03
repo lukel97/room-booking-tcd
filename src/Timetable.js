@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { Link } from 'react-router';
 import { Container, ListGroup, ListGroupItem, Nav, NavItem, NavLink, Breadcrumb, BreadcrumbItem } from 'reactstrap';
 
-function getTimeslots(date) {
+function getTimeslots(date, startHour = 9, endHour = 24) {
   let params = "?date=" + encodeURIComponent(date.toISOString());
   return fetch("/facilities/glass-rooms" + params, {method: 'get'})
     .then(response => response.json())
@@ -14,7 +14,7 @@ function getTimeslots(date) {
     )
     .then(rooms => {
       let timeslots = new Array(24);
-      for(var i = 0; i < 24; i++) {
+      for(var i = 0; i < timeslots.length; i++) {
         var time = new Date(date.getTime());
         time.setHours(i);
         time.setMinutes(0);
@@ -29,7 +29,7 @@ function getTimeslots(date) {
       });
       
       //Only return dates in the future
-      return timeslots.filter(slot => slot.time > date);
+      return timeslots.filter(slot => slot.time > date && slot.time.getHours() >= startHour && slot.time.getHours() < endHour);
     });
 }
 
@@ -81,7 +81,7 @@ export default class Timetable extends Component {
       date.setDate(now.getDate() + i);
       
       //Set dates after tomorrow to 12am
-      if(i != 0) {
+      if(i !== 0) {
         date.setHours(0);
         date.setMinutes(0);
         date.setSeconds(0);
@@ -118,7 +118,7 @@ export default class Timetable extends Component {
           <span className="ml-4">📈📺</span>
       </ListGroupItem>);
     };
-
+    
     return (
       <Container>
         <Breadcrumb>
@@ -133,7 +133,7 @@ export default class Timetable extends Component {
               {
                 this.state.isCalendarOpen ? (
                   <NavLink>
-                    <input type="date" placeholder="23/02"/>
+                    <input type="date" placeholder="23/02" value="2011-03-12"/>
                   </NavLink>
                 ) : (
                   <NavLink href="#" onClick={this.openCalendar}>

@@ -7,18 +7,27 @@ export default class Bookings extends Component {
   constructor(params) {
 	super(params);
     this.state = {
-	    facility: this.props.route.facilities.filter(f=>f.getURLName() === this.props.params.facility)[0],
-	    time: this.props.params.time
+	    facility: this.props.route.facilities.filter(f=>f.getURLName() === this.props.params.facility)[0]
     };
   }
 
   render() {
+	  let time = new Date(this.props.params.time);
+	  let breadcrumbDate = time.toLocaleString('en-GB', {
+		  weekday: "short",
+		  day: "numeric",
+		  month: "long",
+		  hour: "2-digit",
+		  minute: "2-digit"
+	  });
+	  
+	  
 	return (
 	  <Container>
 		  <Breadcrumb>
 			<BreadcrumbItem tag={Link} to="/">Home</BreadcrumbItem>
 			<BreadcrumbItem tag={Link} to={`/${this.state.facility.getURLName()}`}>{this.state.facility.name}</BreadcrumbItem>
-			<BreadcrumbItem active>{this.state.time}</BreadcrumbItem>
+			<BreadcrumbItem active>{breadcrumbDate}</BreadcrumbItem>
 		  </Breadcrumb>
 			<CardGroup>
 				<Card className="mt-4">
