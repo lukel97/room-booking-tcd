@@ -2,18 +2,44 @@ import React, { Component } from 'react';
 import { Link } from 'react-router';
 import { Container, ListGroup, ListGroupItem, Nav, NavItem, NavLink, Breadcrumb, BreadcrumbItem } from 'reactstrap';
 
-function getTimesForDate(date) {
-  var times = Array(24);
-  for(var i = 0; i < 24; i++) {
-    var time = new Date(date.getTime());
-    time.setHours(i);
-    time.setMinutes(0);
-    time.setSeconds(0);
-    times[i] = time;
-  }
-  
-  //Only return dates in the future
-  return times.filter(t => t > new Date());
+function isToday(now, date) {
+  return date.getDate() === now.getDate() && date.getMonth() === now.getMonth() && date.getYear() === now.getYear();
+}
+
+function getTimesForDate(now) {
+  return fetch("/facilities/glass-rooms")
+    .then(response => response.json())
+    .then(rooms => 
+      rooms.map(room => {
+        room.times = room.times.map(time => new Date(time));
+        
+        //Only use dates on today
+        room.times = room.times.filter(isToday.bind(null, now));
+        
+        return room;
+      })
+    )
+    .then(rooms => {
+      var timeslots = new Array(24);
+      for(var i = 0; i < 24; i++) {
+        var time = new Date(now.getTime());
+        time.setHours(i);
+        time.setMinutes(0);
+        time.setSeconds(0);
+        timeslots[i] = { time: time, rooms: 0 };
+      }
+      
+      rooms.forEach(room => {
+        console.log(room);
+        room.times.forEach(time => {
+          console.log("asdf" + time.getHours());
+          timeslots[time.getHours()].rooms += 1;
+        });
+      });
+      
+      //Only return dates in the future
+      return timeslots.filter(slot => slot.time > now);
+    });
 }
 
 export default class Timetable extends Component {
@@ -21,14 +47,22 @@ export default class Timetable extends Component {
   constructor(props) {
     super(props);
     
-    let now = new Date();
-    
     this.state = {
       isCalendarOpen: false,
-      currentDate: now,
-      times: getTimesForDate(now),
+      currentDate: new Date(),
+      timeslots: [],
       facility: this.props.route.facilities.filter(f=>f.getURLName() === this.props.params.facility)[0]
     };
+    
+    getTimesForDate(new Date()).then(timeslots => {
+      this.setState({
+        timeslots: timeslots
+      });
+    }, error => {
+      console.log(error);
+    });
+    
+    // console.log(this.state.timeslots);
     
     this.openCalendar = this.openCalendar.bind(this);
     this.changeDate = this.changeDate.bind(this);
@@ -65,8 +99,10 @@ export default class Timetable extends Component {
       paddingRight: '0'
     };
     
-    const Timeslot = ({time}) => {
+    const Timeslot = ({timeslot}) => {
       let options = { hour: '2-digit', minute: '2-digit' };
+      
+      let time = timeslot.time;
       
       let label = time.toLocaleString('en-GB', options);
       
@@ -75,7 +111,8 @@ export default class Timetable extends Component {
     
       return (<ListGroupItem tag={Link} to={`${this.props.params.facility}/${link}`} action className="timeslot">
           <span className="time">{label}</span>
-          <span className="roomsAvailable ml-4">3 rooms</span>
+          <!-- TODO: workout free rooms -->
+          <span className="roomsAvailable ml-4">{timeslot.rooms} rooms booked</span>
           <span className="ml-4">4💺 6💺</span>
           <span className="ml-4">📈📺</span>
       </ListGroupItem>);
@@ -117,8 +154,8 @@ export default class Timetable extends Component {
             </Nav>
           </ListGroupItem>
           {
-            this.state.times.map(x =>
-              <Timeslot time={x} key={x.getHours()}/>
+            this.state.timeslots.map(timeslot =>
+              <Timeslot timeslot={timeslot} key={timeslot.time.getHours()}/>
             )
           }
           
