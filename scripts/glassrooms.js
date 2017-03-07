@@ -1,4 +1,31 @@
 
+
+/* To cancel make a post request to
+https://www.scss.tcd.ie/cgi-bin/webcal/sgmr/sgmr*ROOMNUM*.cancel.pl
+in the following format:
+Cancel:20170314|14:00-15:00|user|tunstek|Keith Tunstead|ba3|
+/*
+
+/* To make a booking make a post request to
+https://www.scss.tcd.ie/cgi-bin/webcal/sgmr/sgmr3.request.pl
+in the following format
+StartTime:14
+EndTime:16
+StartDate:14
+StartMonth:3
+/*
+
+/* To get current bookings just request
+https://www.scss.tcd.ie/cgi-bin/webcal/sgmr/sgmr*ROOMNUM*.cancel.pl
+And get text from all input type "textbox" where name = "Cancel"
+
+need to do this for all rooms
+*/
+
+
+
+
+
 function getBookedTimesGlassrooms(usr, psw, roomNum) {
 
   $.ajax({
