@@ -8,8 +8,9 @@ export default class Bookings extends Component {
 		super(params);
 
 		this.state ={
-			bookings: ["one", "two"]
+			bookings: ["one", "two"],
       rooms: ["Room 3: Hamilton Glassrooms", "Room 7: Berkely Library"]
+
 		};
 	}
 
