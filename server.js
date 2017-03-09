@@ -1,7 +1,10 @@
 const https = require('https');
 const cheerio = require('cheerio');
 const express = require('express');
+const bodyParser = require('body-parser');
 const app = express();
+
+app.use(bodyParser.json());
 
 /**
  * Returns an array of integers within the specified range
@@ -18,8 +21,81 @@ Array.prototype.flatten = function() {
 	return this.reduce((array, x) => array.concat(x), []);
 }
 
-app.get('/facilities/:name/bookings', (req, res) => {
+app.post('/facility/:name/room/:room/book', (req, res) => {
+	// let data = req.body.json();
+	let date = new Date(req.body.date);
+	let username = req.body.username;
+	let password = req.body.password;
+	let fullName = req.body.fullName;
+	makeGlassRoomBooking(username, password, fullName, date, req.params.room)
+		.then((value) => res.end("success"), (error) => res.end(error));
+});
+
+/* To make a booking make a post request to
+https://www.scss.tcd.ie/cgi-bin/webcal/sgmr/sgmr{roomNumber}.request.pl
+in the following format
+StartTime:14
+EndTime:16
+StartDate:14
+StartMonth:3
+Fullname: Luke Lau
+StartYear: 1 (for 2017) 2 (for 2018)
+*/
+function makeGlassRoomBooking(username, password, fullName, date, room) {
 	
+	let startTime = date.getHours();
+	let endTime = date.getHours() + 1;
+	
+	let startDate = date.getDate();
+	let startMonth = date.getMonth() + 1;	//Months are zero indexed
+	
+	//1 is the current year, 2 is the year after that etc (wot)
+	let startYear = date.getFullYear() - new Date().getFullYear() + 1;
+	
+	let requestData = `StartTime=${startTime}&EndTime=${endTime}&StartDate=${startDate}&StartMonth=${startMonth}&StartYear=${startYear}&Fullname=${fullName}`;
+	
+	const options = {
+		protocol: 'https:',
+		host: 'www.scss.tcd.ie',
+		path: `/cgi-bin/webcal/sgmr/sgmr${room}.request.pl`,
+		//args 2 and 3 are the username and password
+		auth: `${username}:${password}`,
+		method: 'POST',
+		headers: {
+		  "Content-Length": requestData.length,
+		  "Content-Type": "application/x-www-form-urlencoded"
+		}
+	};
+	
+	return new Promise((resolve, reject) => {
+		try {
+			let request = https.request(options, function(res) {
+				let rawData = '';
+				res.on('data', (chunk) => rawData += chunk);
+				res.on('end', () => {
+					let $ = cheerio.load(rawData);
+					
+					if($("title").text().includes("Booking Request Successful"))
+						resolve();
+					else {
+						var errorMessage = "";
+						
+						$("font[color=RED]").each((index, element) =>
+							errorMessage += $(element).text() + "\n");
+							
+						reject(errorMessage);
+					}
+				});
+			});
+			request.write(requestData);
+			request.end();
+		} catch(error) {
+			reject(error);
+		}
+	});
+}
+
+app.get('/facility/:name/bookings', (req, res) => {
 	//🚨 Dodgy - dont' recommend 🚨
 	let username = req.query.username;
 	let password = req.query.password;
@@ -30,12 +106,12 @@ app.get('/facilities/:name/bookings', (req, res) => {
 			.then(times => res.end(JSON.stringify(times)), error => res.end("oops"));
 });
 
-app.get('/facilities/:name/', (req, res) => {
+app.get('/facility/:name/', (req, res) => {
 	let date = new Date(req.query.date);
 	//Return the times for all the rooms
 	Promise.all(range(1, 9).map(getGlassRoomTimes.bind(null, date))).then(times => {
 		res.end(JSON.stringify(times));
-	}, error => res.end("oops"));
+	}, error => res.end("An error occured"));
 });
 
 const server = app.listen(4000, () => {
@@ -49,26 +125,26 @@ function getMyGlassRoomBookings(username, password, room) {
 	const options = {
 	  protocol: 'https:',
 	  host: 'www.scss.tcd.ie',
-	  path: `https://www.scss.tcd.ie/cgi-bin/webcal/sgmr/sgmr${room}.cancel.pl`,
+	  path: `/cgi-bin/webcal/sgmr/sgmr${room}.cancel.pl`,
 	  //args 2 and 3 are the username and password
 	  auth: `${username}:${password}`
 	};
 	
 	return new Promise((resolve, reject) => {
-		https.get(options, function(res) {
-			let rawData = '';
-			res.on('data', (chunk) => rawData += chunk);
-			res.on('end', () => {
-				try {
-					resolve({
-						roomNumber: room,
-						bookings: parseMyGlassRoomBookings(rawData)
-					});
-				} catch(e) {
-					reject(e)
-				}
+		try {
+			https.get(options, function(res) {
+				let rawData = '';
+				res.on('data', (chunk) => rawData += chunk);
+				res.on('end', () => {
+						resolve({
+							roomNumber: room,
+							bookings: parseMyGlassRoomBookings(rawData)
+						});
+				});
 			});
-		});
+		} catch(e) {
+			reject(e)
+		}
 	})
 	
 }
@@ -120,24 +196,24 @@ function getGlassRoomTimes(date, room) {
 	};
 	
 	return new Promise((resolve, reject) => {
-		let request = https.request(options, function(res) {
-			let rawData = '';
-			res.on('data', (chunk) => rawData += chunk);
-			res.on('end', () => {
-				try {
-					resolve({
-						roomNumber: room,
-						capacity: getRoomCapacity(rawData),
-						bookings: scrapeBookedTimesGlassrooms(rawData).filter(isToday.bind(null, date))
-					});
-				} catch(e) {
-					reject(e)
-				}
+		try {
+			let request = https.request(options, function(res) {
+				let rawData = '';
+				res.on('data', (chunk) => rawData += chunk);
+				res.on('end', () => {
+						resolve({
+							roomNumber: room,
+							capacity: getRoomCapacity(rawData),
+							bookings: scrapeBookedTimesGlassrooms(rawData).filter(isToday.bind(null, date))
+						});
+				});
 			});
-		});
-		
-		request.write(requestData);
-		request.end();
+			
+			request.write(requestData);
+			request.end();
+		} catch(e) {
+			reject(e)
+		}
 	});
 }
 

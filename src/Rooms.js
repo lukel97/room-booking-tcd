@@ -14,7 +14,7 @@ export default class Bookings extends Component {
     
 	let queryParams = "?date=" + encodeURIComponent(this.state.time.toISOString());
     
-    fetch("/facilities/glass-rooms/" + queryParams, { method: "get" })
+    fetch("/facility/glass-rooms/" + queryParams, { method: "get" })
     	.then(response => response.json())
     	.then(rooms => 
     	  rooms.map(room => {

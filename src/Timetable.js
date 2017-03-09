@@ -4,7 +4,7 @@ import { Container, ListGroup, ListGroupItem, Nav, NavItem, NavLink, Breadcrumb,
 
 function getTimeslots(date, startHour = 9, endHour = 24) {
   let params = "?date=" + encodeURIComponent(date.toISOString());
-  return fetch("/facilities/glass-rooms" + params, {method: 'get'})
+  return fetch("/facility/glass-rooms" + params, {method: 'get'})
     .then(response => response.json())
     .then(rooms => 
       rooms.map(room => {
