@@ -31,16 +31,15 @@ app.post('/facility/:name/room/:room/book', (req, res) => {
 		.then((value) => res.end("success"), (error) => res.end(error));
 });
 
-/* To make a booking make a post request to
-https://www.scss.tcd.ie/cgi-bin/webcal/sgmr/sgmr{roomNumber}.request.pl
-in the following format
-StartTime:14
-EndTime:16
-StartDate:14
-StartMonth:3
-Fullname: Luke Lau
-StartYear: 1 (for 2017) 2 (for 2018)
-*/
+/**
+ * Makes a booking within the glass rooms facility
+ * @param {String} username - the user's username used to book the request
+ * @param {String} password - the passsword for username
+ * @param {String} fullName - the user's name which is displayed to the public
+ * @param {Date} date - the date for which the booking is to be made on
+ * @param {Number} room - the room number to book
+ * @return {Promise} A promise for the request to book a glass room
+ */
 function makeGlassRoomBooking(username, password, fullName, date, room) {
 	
 	let startTime = date.getHours();
