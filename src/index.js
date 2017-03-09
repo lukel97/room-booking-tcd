@@ -8,6 +8,7 @@ import Bookings from './Bookings';
 import Header from './Header';
 import Facilities, { Facility } from './Facility';
 import Rooms from './Rooms';
+import ConfirmBooking from './ConfirmBooking';
 
 class App extends Component {
   
@@ -87,6 +88,7 @@ render(
       <IndexRoute component={Facilities} facilities={facilities}/>
       <Route path='bookings' component={Bookings}/>
       <Route path=':facility/:time' component={Rooms} facilities={facilities}/>
+      <Route path=":facility/:time/:room" component={ConfirmBooking} facilities={facilities}/>
       <Route path=':facility' component={Timetable} facilities={facilities}/>
     </Route>
   </Router>,
