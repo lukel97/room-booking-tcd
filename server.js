@@ -22,7 +22,6 @@ Array.prototype.flatten = function() {
 }
 
 app.post('/facility/:name/room/:room/book', (req, res) => {
-	// let data = req.body.json();
 	let date = new Date(req.body.date);
 	let username = req.body.username;
 	let password = req.body.password;
@@ -41,9 +40,9 @@ app.post('/facility/:name/room/:room/book', (req, res) => {
  * @return {Promise} A promise for the request to book a glass room
  */
 function makeGlassRoomBooking(username, password, fullName, date, room) {
-	
-	let startTime = date.getHours();
-	let endTime = date.getHours() + 1;
+	//00:00 is 1, 01:00 is 2, etc.
+	let startTime = date.getHours() + 1;
+	let endTime = date.getHours() + 2;
 	
 	let startDate = date.getDate();
 	let startMonth = date.getMonth() + 1;	//Months are zero indexed
