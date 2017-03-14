@@ -31,6 +31,72 @@ app.post('/facility/:name/room/:room/book', (req, res) => {
 		.then((value) => res.end("success"), (error) => res.end(error));
 });
 
+app.post('/facility/:name/room/:room/cancel' (req,res) =>{
+		let date = new Date(req.body.date);
+	let username = req.body.username;
+	let password = req.body.password
+	let fullName = req.body.fullName;
+	cancelGlassRoomBooking(date,username, password, fullName, req.params.room)
+		.then((value) => res.end("success"), (error) => res.end(error));
+});
+
+//value="20170317|09:00-10:00|user|macfhlar|Ronan Macfhlannchadha|bacsb2|"
+function cancelGlassRoomBooking(date, username, password, fullName,room){
+
+	let startTime = date.getHours();
+	let endTime = date.getHours() + 1;
+	
+	let startDate = date.getDate();
+	let startMonth = date.getMonth() + 1;	//Months are zero indexed
+
+	let startDay = date.getDate();
+	
+	//1 is the current year, 2 is the year after that etc (wot)
+	let startYear = date.getFullYear() - new Date().getFullYear() + 1;
+
+	let requestData = 'StartYear=${startYear)&StartMonth=${startMonth}&StartDay=$startDay}&StartTime=${startTime}&EndTime=${endTime}&UserName=${username}&Fullname=${fullName}`;
+
+	const options = {
+	  protocol: 'https:',
+	  host: 'www.scss.tcd.ie',
+	  path: `/cgi-bin/webcal/sgmr/sgmr${room}.cancel.pl`,
+	  auth: `${username}:${password}`
+	  method: 'POST',
+		headers: {
+		  "Content-Length": requestData.length,
+		  "Content-Type": "application/x-www-form-urlencoded"
+		}
+	};
+
+	return new Promise((resolve, reject) => {
+		try {
+			let request = https.request(options, function(res) {
+				let rawData = '';
+				res.on('data', (chunk) => rawData += chunk);
+				res.on('end', () => {
+					let $ = cheerio.load(rawData);
+					var p = object.find("p[align='center']");
+					var arr = p.find("font[color='green']").toArray();
+					if(arr[0].text().includes("Cancellation Successful"))
+						resolve();
+					else {
+						var errorMessage = "";
+						
+						$("font[color=RED]").each((index, element) =>
+							errorMessage += $(element).text() + "\n");
+							
+						reject(errorMessage);
+					}
+				});
+			});
+			request.write(requestData);
+			request.end();
+		} catch(error) {
+			reject(error);
+		}
+
+	});
+}
 /**
  * Makes a booking within the glass rooms facility
  * @param {String} username - the user's username used to book the request
