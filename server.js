@@ -30,36 +30,31 @@ app.post('/facility/:name/room/:room/book', (req, res) => {
 		.then((value) => res.end("success"), (error) => res.end(error));
 });
 
-app.post('/facility/:name/room/:room/cancel' (req,res) =>{
-		let date = new Date(req.body.date);
+app.post('/facility/:name/room/:room/cancel', (req,res) =>{
 	let username = req.body.username;
-	let password = req.body.password
-	let fullName = req.body.fullName;
-	cancelGlassRoomBooking(date,username, password, fullName, req.params.room)
-		.then((value) => res.end("success"), (error) => res.end(error));
+	let password = req.body.password;
+	
+	//Get the values we need to submit back to the website in order to cancel the bookings
+	getMyGlassRoomBookings(username, password, true, req.params.room)
+		.then(result => result.bookings)
+		//Wait for all bookings for that room to be cancelled
+		.then(cancelValues => Promise.all(cancelValues.map((value => cancelGlassRoomBooking(username, password, req.params.room, value)))))
+		//Then reply to the client
+		.then(() => res.end("success")).catch((error) => {
+			res.end();
+			console.log(error);
+		});
 });
 
 //value="20170317|09:00-10:00|user|macfhlar|Ronan Macfhlannchadha|bacsb2|"
-function cancelGlassRoomBooking(date, username, password, fullName,room){
-
-	let startTime = date.getHours();
-	let endTime = date.getHours() + 1;
-	
-	let startDate = date.getDate();
-	let startMonth = date.getMonth() + 1;	//Months are zero indexed
-
-	let startDay = date.getDate();
-	
-	//1 is the current year, 2 is the year after that etc (wot)
-	let startYear = date.getFullYear() - new Date().getFullYear() + 1;
-
-	let requestData = 'StartYear=${startYear)&StartMonth=${startMonth}&StartDay=$startDay}&StartTime=${startTime}&EndTime=${endTime}&UserName=${username}&Fullname=${fullName}`;
+function cancelGlassRoomBooking(username, password, room, cancelValue){
+	let requestData = `Cancel=${cancelValue}`;
 
 	const options = {
 	  protocol: 'https:',
 	  host: 'www.scss.tcd.ie',
 	  path: `/cgi-bin/webcal/sgmr/sgmr${room}.cancel.pl`,
-	  auth: `${username}:${password}`
+	  auth: `${username}:${password}`,
 	  method: 'POST',
 		headers: {
 		  "Content-Length": requestData.length,
@@ -74,14 +69,12 @@ function cancelGlassRoomBooking(date, username, password, fullName,room){
 				res.on('data', (chunk) => rawData += chunk);
 				res.on('end', () => {
 					let $ = cheerio.load(rawData);
-					var p = object.find("p[align='center']");
-					var arr = p.find("font[color='green']").toArray();
-					if(arr[0].text().includes("Cancellation Successful"))
+					if($("FONT[COLOR='GREEN']").text().includes("Cancellation Successful"))
 						resolve();
 					else {
 						var errorMessage = "";
 						
-						$("font[color=RED]").each((index, element) =>
+						$("FONT[COLOR=RED]").each((index, element) =>
 							errorMessage += $(element).text() + "\n");
 							
 						reject(errorMessage);
@@ -185,7 +178,7 @@ const server = app.listen(4000, () => {
   console.log("Listening at http://%s:%s", host, port)
 });
 
-function getMyGlassRoomBookings(username, password, room) {
+function getMyGlassRoomBookings(username, password, cancelValues = false, room) {
 	const options = {
 	  protocol: 'https:',
 	  host: 'www.scss.tcd.ie',
@@ -202,7 +195,7 @@ function getMyGlassRoomBookings(username, password, room) {
 				res.on('end', () => {
 						resolve({
 							roomNumber: room,
-							bookings: parseMyGlassRoomBookings(rawData)
+							bookings: cancelValues ? getCancelValues(rawData) : parseMyGlassRoomBookings(rawData)
 						});
 				});
 			});
@@ -213,13 +206,15 @@ function getMyGlassRoomBookings(username, password, room) {
 	
 }
 
-function parseMyGlassRoomBookings(data) {
+function getCancelValues(data) {
 	let $ = cheerio.load(data);
 	
-	let form = $("form[action='/cgi-bin/webcal/sgmr/sgmr3.cancel.pl']");
-	let strings = form.find("input[type='CHECKBOX']").map((i, e) => $(e).val()).get();
-	
-	let bookings = strings.map(s => {
+	let form = $("form[action$='.cancel.pl']");
+	return values = form.find("input[type='CHECKBOX']").map((i, e) => $(e).val()).get();
+}
+
+function parseMyGlassRoomBookings(data) {
+	let bookings = getCancelValues(data).map(s => {
 		let parts = s.split("|");
 		let year = parseInt(parts[0].slice(0, 4));
 		let month = parseInt(parts[0].slice(4, 6)) - 1;	//Months are zero indexed
