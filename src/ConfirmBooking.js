@@ -36,32 +36,30 @@ export default class ConfirmBooking extends Component {
 	}
 	
 	render() {
-		let dateOptions = {
-			weekday: "short",
-			day: "numeric",
-			month: "long",
-			hour: "2-digit",
-			minute: "2-digit"
-		};
+		let timeOptions = { hour: "2-digit", minute: "2-digit" };
+		let timeLabel = this.state.time.toLocaleString('en-GB', timeOptions);
 		
-		let timeLabel = this.state.time.toLocaleString('en-GB', dateOptions);
+		let dateOptions = { weekday: "short", day: "numeric", month: "long" };
+		let dateLabel = this.state.time.toLocaleString('en-GB', dateOptions);
+		
+		let breadcrumbDateLabel = this.state.time.toLocaleString('en-GB', {...timeOptions, ...dateOptions});
+																		
 		return (
 			<Container>
 				<Breadcrumb>
 					<BreadcrumbItem tag={Link} to="/">Home</BreadcrumbItem>
 					<BreadcrumbItem tag={Link} to={`/${this.state.facility.getURLName()}`}>{this.state.facility.name}</BreadcrumbItem>
-					<BreadcrumbItem tag={Link} to={`/${this.state.facility.getURLName()}/${this.state.time.toUTCString()}`}>{timeLabel}</BreadcrumbItem>
+					<BreadcrumbItem tag={Link} to={`/${this.state.facility.getURLName()}/${this.state.time.toUTCString()}`}>{breadcrumbDateLabel}</BreadcrumbItem>
 					<BreadcrumbItem active>Room {this.state.room}</BreadcrumbItem>
 				</Breadcrumb>
-				<Jumbotron>
-					<h1>Confirm booking</h1>
-					<h3>Room {this.state.room} @ {timeLabel}</h3>
+					<h1 className="text-center">{timeLabel}</h1>
+					<h2 className="text-center">Room {this.state.room}</h2>
+					<h3 className="text-center">{dateLabel}</h3>
 					<Input type="text" placeholder="username" onChange={this.usernameChanged}/>
 					<br/>
 					<Input type="password" placeholder="password" onChange={this.passwordChanged}/>
 					<br/>
 					<Button color="primary" onClick={this.book}>Book now</Button>
-				</Jumbotron>
 			</Container>
 		);
 	}
