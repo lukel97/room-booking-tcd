@@ -99,12 +99,12 @@ exports.getGlassRoomTimes = function(date, room) {
 				let rawData = '';
 				res.on('data', (chunk) => rawData += chunk);
 				res.on('end', () => {
-						resolve({
-							roomNumber: room,
-							capacity: getRoomCapacity(rawData),
-							amenities: glassRoomAmenities[room],
-							bookings: scrapeBookedTimesGlassrooms(rawData).filter(isToday.bind(null, date))
-						});
+					resolve({
+						roomNumber: room,
+						capacity: getRoomCapacity(rawData),
+						amenities: glassRoomAmenities[parseInt(room)],
+						bookings: scrapeBookedTimesGlassrooms(rawData).filter(isToday.bind(null, date))
+					});
 				});
 			});
 

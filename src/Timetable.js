@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router';
 import { Container, ListGroup, ListGroupItem, Nav, NavItem, NavLink, Breadcrumb, BreadcrumbItem } from 'reactstrap';
+import Amenities from '../server/Amenities.js';
 
 function getTimeslots(date, startHour = 9, endHour = 24) {
   let params = "?date=" + encodeURIComponent(date.toISOString());
@@ -106,6 +107,16 @@ export default class Timetable extends Component {
       let capacities = timeslot.roomsFree.map(r => r.capacity);
       let maxCapacity = Math.max(...capacities);
       
+      let numTVs = timeslot.roomsFree.map(r => r.amenities.filter(a => a === Amenities.TV).length > 0);
+      let hasTV = numTVs.filter(x => x).length > 0;
+      
+      let numFlipcharts = timeslot.roomsFree.map(r => r.amenities.filter(a => a === Amenities.FLIP_CHART).length > 0);
+      let hasFlipchart = numFlipcharts.filter(x => x).length > 0;
+      
+      let amenitiesLabel = "";
+      if(hasTV) amenitiesLabel += "📺";
+      if(hasFlipchart) amenitiesLabel += "📊";
+      
       //TODO: Pass the time in a better way
       let link = time.toUTCString();
     
@@ -115,7 +126,7 @@ export default class Timetable extends Component {
           {
             timeslot.roomsFree.length > 0 && <span className="ml-4">{maxCapacity}💺</span>
           }
-          <span className="ml-4">📈📺</span>
+          <span className="ml-4">{amenitiesLabel}</span>
       </ListGroupItem>);
     };
     

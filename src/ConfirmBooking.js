@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router';
-import { Container, Breadcrumb, BreadcrumbItem, Jumbotron, Button, Input } from 'reactstrap';
+import { Container, Breadcrumb, BreadcrumbItem, Button, Input } from 'reactstrap';
 
 export default class ConfirmBooking extends Component {
 	
@@ -52,9 +52,9 @@ export default class ConfirmBooking extends Component {
 					<BreadcrumbItem tag={Link} to={`/${this.state.facility.getURLName()}/${this.state.time.toUTCString()}`}>{breadcrumbDateLabel}</BreadcrumbItem>
 					<BreadcrumbItem active>Room {this.state.room}</BreadcrumbItem>
 				</Breadcrumb>
-					<h1 className="text-center">{timeLabel}</h1>
-					<h2 className="text-center">Room {this.state.room}</h2>
+					<h1 className="text-center display-3">{timeLabel}</h1>
 					<h3 className="text-center">{dateLabel}</h3>
+					<h4 className="text-center">Room {this.state.room} @ {this.state.facility.name}</h4>
 					<Input type="text" placeholder="username" onChange={this.usernameChanged}/>
 					<br/>
 					<Input type="password" placeholder="password" onChange={this.passwordChanged}/>
