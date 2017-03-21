@@ -17,7 +17,6 @@ export default class Bookings extends Component {
     
     fetch("/facility/glass-rooms/bookings" + username + password, { method: "get" })	// double check this is done correctly
     	.then(response => response.json())
-    	.then(rooms => 
     	.then(rooms =>
 	    	this.setState({
 		    	rooms: rooms
@@ -37,7 +36,7 @@ export default class Bookings extends Component {
 
     return (
       <div>
-      	{cards}
+      	{rooms}
       </div>
     );
   }
