@@ -56,3 +56,58 @@ const server = app.listen(4000, () => {
 
   console.log("Listening at http://%s:%s", host, port)
 });
+
+
+//--------------------------------------------
+
+function scrapeAvailableTimesBlu(data) {
+  var document_root = data;
+
+  // ***** START SCRAPING THE HTML ******
+  var object = $('<div/>').html(document_root).contents();
+
+  var fieldsets = object.find("fieldset");
+  var length = fieldsets.length;
+
+
+  var objArr = new Array(); //array of room objects
+
+  //Setup the temp vars for each room
+  var tempArr = new Array(); //Temp array to handle js pointers
+  var availTemp = new Object();
+  availTemp.room = 0;
+  availTemp.times = new Array();
+
+  $(fieldsets).each(function(index, element){
+
+    if(index != length - 1 && index != 0) {
+      //console.log($(this).text());
+      var h2 = $(this).find("h2");
+      $(h2).children().remove().text();
+      //console.log(h2.text());
+      var availTimes = $(this).find("label");
+
+      //iterate over each available time
+      $(availTimes).each(function(i, e){
+        //Push each time to a temp array
+        tempArr.push($(this).text().trim());
+      });
+
+      //Save to the temp object
+      availTemp = {room:index, times:tempArr};
+
+      //clear tempArr
+      tempArr = [];
+
+      //Push to main array
+      objArr.push(availTemp);
+    }
+  });
+
+  console.log(objArr);
+
+  //All available times are now in objArr
+
+  // ***** FINISHED SCRAPING ******
+
+}

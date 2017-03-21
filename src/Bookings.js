@@ -1,33 +1,39 @@
 import React, { Component } from 'react';
 import { Card, CardHeader, CardText, CardBlock,
-  CardTitle, CardSubtitle, Button } from 'reactstrap';
+  CardTitle, CardSubtitle, Button } from 'reactstrap';	// need to import other stuff i'd say
 
 export default class Bookings extends Component {
 
 	constructor(params) {
 		super(params);
+    	this.state = {
+	    facility: this.props.route.facilities.filter(f=>f.getURLName() === this.props.params.facility)[0], // dont know whats going on here
+	    rooms: []
+    };
+    
+	let username = encodeURIComponent("macfhlar&");
+	let password = encodeURIComponent("Rossmore12!");	// Will need to update this to get user's password + username
 
-		this.state ={
-			bookings: ["one", "two"],
-      rooms: ["Room 3: Hamilton Glassrooms", "Room 7: Berkely Library"]
-
-		};
+    
+    fetch("/facility/glass-rooms/bookings" + username + password, { method: "get" })	// double check this is done correctly
+    	.then(response => response.json())
+    	.then(rooms => 
+    	.then(rooms =>
+	    	this.setState({
+		    	rooms: rooms
+	    	})
+    	, error => console.log);
 	}
 
   render() {
-
-  	var cards = [];
-  	for(var i = 0; i < this.state.bookings.length; i++) {
-  		cards.push(<Card>
-        <CardHeader>{this.state.rooms[i]}</CardHeader>
-        <CardBlock>
-          <CardTitle>{this.state.bookings[i]}</CardTitle>
-          <CardSubtitle>Card subtitle</CardSubtitle>
-          <CardText>Some quick example text to build on the card title and make up the bulk of the card's content.</CardText>
-          <Button>Cancel Booking</Button>
-        </CardBlock>
-      </Card>);
-  	}
+  	let rooms = this.state.rooms.map(room =>
+			<Card className="mt-4" key={room.roomNumber}>
+				<CardBlock>
+					<CardTitle>Room {room.roomNumber}</CardTitle>
+					<Button> Cancel</Button>  // need to incorporate cancel function
+				</CardBlock>
+			</Card>
+		);
 
     return (
       <div>
