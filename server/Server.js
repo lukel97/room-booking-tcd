@@ -16,8 +16,8 @@ app.post('/facility/:name/room/:room/book', (req, res) => {
 });
 
 app.post('/facility/:name/room/:room/cancel', (req,res) =>{
-	let username = req.body.username;
-	let password = req.body.password;
+	let username = req.query.username;
+	let password = req.query.password;
 	
 	//Get the values we need to submit back to the website in order to cancel the bookings
 	glassRooms.getMyGlassRoomBookings(username, password, true, req.params.room)
@@ -36,7 +36,7 @@ app.get('/facility/:name/bookings', (req, res) => {
 	let username = req.query.username;
 	let password = req.query.password;
 
-	Promise.all(helpers.range(1, 9).map(glassRooms.getMyGlassRoomBookings.bind(null, username, password)))
+	Promise.all(helpers.range(1, 9).map(glassRooms.getMyGlassRoomBookings.bind(null, username, password, false)))
 			.then(times => times.filter(x => x.bookings.length > 0))
 			.then(times => times.flatten())
 			.then(times => res.end(JSON.stringify(times)), error => res.end("oops"));
