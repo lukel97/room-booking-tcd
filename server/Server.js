@@ -63,7 +63,17 @@ app.get('/facility/:name/availableTimes', (req, res) => {
 				.catch(error => console.log);
 			break;
 		case "berkeley":
-			blu.getAvailableTimes(date)
+			blu.getAvailableTimes(blu.Facility.BERKELEY, date)
+				.then(times => res.end(JSON.stringify(times)))
+				.catch(res.end);
+			break;
+		case "hamilton":
+			blu.getAvailableTimes(blu.Facility.HAMILTON, date)
+				.then(times => res.end(JSON.stringify(times)))
+				.catch(res.end);
+			break;
+		case "john-stearne":
+			blu.getAvailableTimes(blu.Facility.JOHN_STEARNE, date)
 				.then(times => res.end(JSON.stringify(times)))
 				.catch(res.end);
 			break;

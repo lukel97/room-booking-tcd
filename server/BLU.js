@@ -3,11 +3,17 @@ const helpers = require('./Helpers');
 const https = require('https');
 const cheerio = require('cheerio');
 
-exports.getAvailableTimes = function(date) {
+exports.Facility = {
+	BERKELEY: "14647",
+	HAMILTON: "14703",
+	JOHN_STEARNE: "14704"
+}
+
+exports.getAvailableTimes = function(facility, date) {
 	let dateParam = date.getFullYear() + "-" + (date.getMonth() + 1).pad(2) + "-" + date.getDate();
 	console.log(dateParam);
 	
-	return helpers.getPageHttp(`http://tcd-ie.libcal.com/rooms_acc.php?gid=14647&d=${dateParam}&cap=0`)
+	return helpers.getPageHttp(`http://tcd-ie.libcal.com/rooms_acc.php?gid=${facility}&d=${dateParam}&cap=0`)
 		.then(data => scrapeAvailableTimesBlu(data, date));
 }
 
@@ -31,12 +37,8 @@ function scrapeAvailableTimesBlu(data) {
 	
 	$(fieldsets).each(function(index, element){
 		if(index != length - 1 && index != 0) {
-			//console.log($(this).text());
 			var h2 = $(this).find("h2");
 			$(h2).children().remove().text();
-			//console.log(h2.text());
-			
-			
 			
 			let capacityText = $("legend").find("h2").find("small").text();
 			let capacity = parseInt(capacityText.match(/\d+/));
@@ -44,8 +46,6 @@ function scrapeAvailableTimesBlu(data) {
 			
 			var availTimes = $(this).find("label");
 			var availableTimes = [];
-
-			console.log(availTimes.length);
 			
 			//iterate over each available time
 			$(availTimes).each(function(i, e){
