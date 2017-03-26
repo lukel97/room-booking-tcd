@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router';
 import { Container, Breadcrumb, BreadcrumbItem, CardColumns, Card, CardBlock, CardTitle, CardSubtitle, CardText, Button } from 'reactstrap';
+import ReactSVG from 'react-svg';
 import Amenities from '../server/Amenities';
 
 export default class Bookings extends Component {
@@ -10,7 +11,8 @@ export default class Bookings extends Component {
 		this.state = {
 			facility: this.props.route.facilities.filter(f=>f.getURLName() === this.props.params.facility)[0],
 			time: new Date(this.props.params.time),
-			rooms: []
+			rooms: [],
+			isLoading: true
 		};
 	}
 	
@@ -22,15 +24,16 @@ export default class Bookings extends Component {
 			.then(rooms => 
 			  rooms.map(room => {
 				//Filter the bookings to just bookings at the speicifed date
-				room.bookings = room.availableTimes.map(time => new Date(time))
+				room.availableTimes = room.availableTimes.map(time => new Date(time))
 								.filter(time => time.getTime() === this.state.time.getTime());
 				return room;
-			  }).filter(room => room.bookings.length > 0))	//And only show rooms with free slots
+			  }).filter(room => room.availableTimes.length > 0))	//And only show rooms with free slots
 			  .then(rooms =>
 				this.setState({
-					rooms: rooms
+					rooms: rooms,
+					isLoading: false
 				})
-			, error => console.log);
+			, error => console.log)
 	}
 	
 	getAmenitiesLabel(room) {
@@ -60,6 +63,13 @@ export default class Bookings extends Component {
 		  minute: "2-digit"
 		});
 		
+		let centerStyle = {
+		  height: "100%",
+		  display: "flex",
+		  justifyContent: "center",
+		  alignContent: "center",
+		};
+		
 		let rooms = this.state.rooms.map(room =>
 			<Card className="mt-4" key={room.roomNumber}>
 				<CardBlock>
@@ -70,7 +80,7 @@ export default class Bookings extends Component {
 				</CardBlock>
 			</Card>
 		);
-	  
+		
 		return (
 		  <Container>
 				<Breadcrumb>
@@ -78,9 +88,16 @@ export default class Bookings extends Component {
 					<BreadcrumbItem tag={Link} to={`/${this.state.facility.getURLName()}`}>{this.state.facility.name}</BreadcrumbItem>
 					<BreadcrumbItem active>{breadcrumbDate}</BreadcrumbItem>
 				</Breadcrumb>
-				<CardColumns>
-					{rooms}
-				</CardColumns>
+				{
+					this.state.isLoading ?
+						<div style={centerStyle}>
+						  <ReactSVG path={require("./img/spinner.svg")} style={{width: 32}}/>
+						</div> 
+					:
+						<CardColumns>
+							{rooms}
+						</CardColumns>
+				}
 		  </Container>
 		);
 	}

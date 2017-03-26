@@ -11,7 +11,6 @@ exports.Facility = {
 
 exports.getAvailableTimes = function(facility, date) {
 	let dateParam = date.getFullYear() + "-" + (date.getMonth() + 1).pad(2) + "-" + date.getDate();
-	console.log(dateParam);
 	
 	return helpers.getPageHttp(`http://tcd-ie.libcal.com/rooms_acc.php?gid=${facility}&d=${dateParam}&cap=0`)
 		.then(data => scrapeAvailableTimesBlu(data, date));
@@ -37,10 +36,8 @@ function scrapeAvailableTimesBlu(data) {
 	
 	$(fieldsets).each(function(index, element){
 		if(index != length - 1 && index != 0) {
-			var h2 = $(this).find("h2");
-			$(h2).children().remove().text();
 			
-			let capacityText = $("legend").find("h2").find("small").text();
+			let capacityText = $(this).find("legend").find("h2").find("small").text();
 			let capacity = parseInt(capacityText.match(/\d+/));
 			
 			

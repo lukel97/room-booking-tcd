@@ -15,6 +15,7 @@
     "react-addons-transition-group": "^15.4.2",
     "react-dom": "^15.4.2",
     "react-router": "^3.0.2",
+    "react-svg": "^2.1.19",
     "reactstrap": "^4.2.0"
   },
   "scripts": {

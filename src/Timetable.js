@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router';
 import { Container, ListGroup, ListGroupItem, Nav, NavItem, NavLink, Breadcrumb, BreadcrumbItem } from 'reactstrap';
+import ReactSVG from 'react-svg';
 import Amenities from '../server/Amenities.js';
 
 export default class Timetable extends Component {
@@ -12,7 +13,8 @@ export default class Timetable extends Component {
       isCalendarOpen: false,
       currentDate: new Date(),
       timeslots: [],
-      facility: this.props.route.facilities.filter(f=>f.getURLName() === this.props.params.facility)[0]
+      facility: this.props.route.facilities.filter(f=>f.getURLName() === this.props.params.facility)[0],
+      isLoading: true
     };
     
     this.openCalendar = this.openCalendar.bind(this);
@@ -62,14 +64,21 @@ export default class Timetable extends Component {
   
   changeDate(date) {
     this.setState({
-      currentDate: date
+      currentDate: date,
+      isLoading: true
     });
     
     this.getTimeslots(date).then(timeslots => {
       this.setState({
-        timeslots: timeslots
+        timeslots: timeslots,
+        isLoading: false
       });
-    }, error => console.log);
+    }, error => {
+      console.log(error);
+      this.setState({
+        isLoading: false
+      });
+    });
   }
   
   render() {
@@ -130,6 +139,13 @@ export default class Timetable extends Component {
       </ListGroupItem>);
     };
     
+    let centerStyle = {
+      height: "100%",
+      display: "flex",
+      justifyContent: "center",
+      alignContent: "center",
+    };
+    
     return (
       <Container>
         <Breadcrumb>
@@ -166,6 +182,10 @@ export default class Timetable extends Component {
             </Nav>
           </ListGroupItem>
           {
+            this.state.isLoading ? 
+            <div style={centerStyle}>
+              <ReactSVG path={require("./img/spinner.svg")} style={{width: 32}}/>
+            </div> :
             this.state.timeslots.map(timeslot =>
               <Timeslot timeslot={timeslot} key={timeslot.time.getHours()}/>
             )

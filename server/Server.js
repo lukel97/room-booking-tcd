@@ -58,7 +58,7 @@ app.get('/facility/:name/availableTimes', (req, res) => {
 	switch(req.params.name) {
 		case "glass-rooms":
 			//Return the times for all the rooms
-			Promise.all(helpers.range(1, 9).map(glassRooms.getGlassRoomTimes.bind(null, date)))
+			Promise.all(helpers.range(1, 9).map(glassRooms.getAvailableTimes.bind(null, date)))
 				.then(times => res.end(JSON.stringify(times)))
 				.catch(error => console.log);
 			break;
