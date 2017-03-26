@@ -86,7 +86,7 @@ render(
   <Router history={browserHistory}>
     <Route path='/' component={App}>
       <IndexRoute component={Facilities} facilities={facilities}/>
-      <Route path='bookings' component={Bookings}/>
+      <Route path='bookings' component={Bookings} facilities={facilities}/>
       <Route path=':facility/:time' component={Rooms} facilities={facilities}/>
       <Route path=":facility/:time/:room" component={ConfirmBooking} facilities={facilities}/>
       <Route path=':facility' component={Timetable} facilities={facilities}/>
