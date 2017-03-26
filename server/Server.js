@@ -1,6 +1,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const glassRooms = require('./GlassRooms');
+const blu = require('./BLU');
 const app = express();
 const helpers = require('./Helpers');
 
@@ -42,12 +43,34 @@ app.get('/facility/:name/bookings', (req, res) => {
 			.then(times => res.end(JSON.stringify(times)), error => res.end("oops"));
 });
 
-app.get('/facility/:name/', (req, res) => {
+app.get('/facility/:name/availableTimes', (req, res) => {
+	if(!req.query.date) {
+		res.end("Need to supply a date");
+		return;
+	}
 	let date = new Date(req.query.date);
-	//Return the times for all the rooms
-	Promise.all(helpers.range(1, 9).map(glassRooms.getGlassRoomTimes.bind(null, date)))
-		.then(times => res.end(JSON.stringify(times)))
-		.catch(error => console.log);
+	//Clean up the date
+	date.setHours(0);
+	date.setMinutes(0);
+	date.setSeconds(0);
+	date.setMilliseconds(0);
+	
+	switch(req.params.name) {
+		case "glass-rooms":
+			//Return the times for all the rooms
+			Promise.all(helpers.range(1, 9).map(glassRooms.getGlassRoomTimes.bind(null, date)))
+				.then(times => res.end(JSON.stringify(times)))
+				.catch(error => console.log);
+			break;
+		case "berkeley":
+			blu.getAvailableTimes(date)
+				.then(times => res.end(JSON.stringify(times)))
+				.catch(res.end);
+			break;
+		default:
+			res.end("Not a valid facility");
+	}
+	
 });
 
 const server = app.listen(4000, () => {
@@ -58,56 +81,3 @@ const server = app.listen(4000, () => {
 });
 
 
-//--------------------------------------------
-
-function scrapeAvailableTimesBlu(data) {
-  var document_root = data;
-
-  // ***** START SCRAPING THE HTML ******
-  var object = $('<div/>').html(document_root).contents();
-
-  var fieldsets = object.find("fieldset");
-  var length = fieldsets.length;
-
-
-  var objArr = new Array(); //array of room objects
-
-  //Setup the temp vars for each room
-  var tempArr = new Array(); //Temp array to handle js pointers
-  var availTemp = new Object();
-  availTemp.room = 0;
-  availTemp.times = new Array();
-
-  $(fieldsets).each(function(index, element){
-
-    if(index != length - 1 && index != 0) {
-      //console.log($(this).text());
-      var h2 = $(this).find("h2");
-      $(h2).children().remove().text();
-      //console.log(h2.text());
-      var availTimes = $(this).find("label");
-
-      //iterate over each available time
-      $(availTimes).each(function(i, e){
-        //Push each time to a temp array
-        tempArr.push($(this).text().trim());
-      });
-
-      //Save to the temp object
-      availTemp = {room:index, times:tempArr};
-
-      //clear tempArr
-      tempArr = [];
-
-      //Push to main array
-      objArr.push(availTemp);
-    }
-  });
-
-  console.log(objArr);
-
-  //All available times are now in objArr
-
-  // ***** FINISHED SCRAPING ******
-
-}

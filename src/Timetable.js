@@ -3,37 +3,6 @@ import { Link } from 'react-router';
 import { Container, ListGroup, ListGroupItem, Nav, NavItem, NavLink, Breadcrumb, BreadcrumbItem } from 'reactstrap';
 import Amenities from '../server/Amenities.js';
 
-function getTimeslots(date, startHour = 9, endHour = 24) {
-  let params = "?date=" + encodeURIComponent(date.toISOString());
-  return fetch("/facility/glass-rooms" + params, {method: 'get'})
-    .then(response => response.json())
-    .then(rooms => 
-      rooms.map(room => {
-        room.bookings = room.bookings.map(booking => new Date(booking));
-        return room;
-      })
-    )
-    .then(rooms => {
-      let timeslots = new Array(24);
-      for(var i = 0; i < timeslots.length; i++) {
-        var time = new Date(date.getTime());
-        time.setHours(i);
-        time.setMinutes(0);
-        time.setSeconds(0);
-        timeslots[i] = { time: time, roomsFree: rooms};
-      }
-      rooms.forEach(room => {
-        room.bookings.forEach(time => {
-          let newFreeRooms = timeslots[time.getHours()].roomsFree.filter(r => r.roomNumber !== room.roomNumber);
-          timeslots[time.getHours()].roomsFree = newFreeRooms;
-        });
-      });
-      
-      //Only return dates in the future
-      return timeslots.filter(slot => slot.time > date && slot.time.getHours() >= startHour && slot.time.getHours() < endHour);
-    });
-}
-
 export default class Timetable extends Component {
   
   constructor(props) {
@@ -48,6 +17,7 @@ export default class Timetable extends Component {
     
     this.openCalendar = this.openCalendar.bind(this);
     this.changeDate = this.changeDate.bind(this);
+    this.getTimeslots = this.getTimeslots.bind(this);
   }
   
   componentDidMount() {
@@ -60,12 +30,42 @@ export default class Timetable extends Component {
     });
   }
   
+  getTimeslots(date, startHour = 9, endHour = 24) {
+    let params = "?date=" + encodeURIComponent(date.toISOString());
+    return fetch(`/facility/${this.state.facility.getURLName()}/availableTimes` + params, {method: 'get'})
+      .then(response => response.json())
+      .then(rooms => 
+        //Convert date strings to date objects
+        rooms.map(room => {
+          room.availableTimes = room.availableTimes.map(time => new Date(time));
+          return room;
+        })
+      )
+      .then(rooms => {
+        let timeslots = new Array(24);
+        for(let i = 0; i < timeslots.length; i++) {
+          let time = new Date(date.getTime());
+          time.setHours(i);
+          time.setMinutes(0);
+          time.setSeconds(0);
+          time.setMilliseconds(0);
+  
+          let roomsFree = rooms.filter(room => room.availableTimes.map(x => x.getTime()).includes(time.getTime()));
+  
+          timeslots[i] = { time: time, roomsFree: roomsFree };
+        }
+  
+        //Only return dates in the future
+        return timeslots.filter(slot => slot.time > date && slot.time.getHours() >= startHour && slot.time.getHours() < endHour);
+      });
+  }
+  
   changeDate(date) {
     this.setState({
       currentDate: date
     });
     
-    getTimeslots(date).then(timeslots => {
+    this.getTimeslots(date).then(timeslots => {
       this.setState({
         timeslots: timeslots
       });

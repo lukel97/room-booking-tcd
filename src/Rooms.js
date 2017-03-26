@@ -12,18 +12,20 @@ export default class Bookings extends Component {
 			time: new Date(this.props.params.time),
 			rooms: []
 		};
-		
+	}
+	
+	componentDidMount() {
 		let queryParams = "?date=" + encodeURIComponent(this.state.time.toISOString());
 		
-		fetch("/facility/glass-rooms/" + queryParams, { method: "get" })
+		fetch(`/facility/${this.state.facility.getURLName()}/availableTimes${queryParams}`, { method: "get" })
 			.then(response => response.json())
 			.then(rooms => 
 			  rooms.map(room => {
 				//Filter the bookings to just bookings at the speicifed date
-			    room.bookings = room.bookings.map(booking => new Date(booking))
-			    				.filter(booking => booking.getTime() === this.state.time.getTime());
-			    return room;
-			  }).filter(room => room.bookings.length === 0))	//And only show rooms with no bookings
+				room.bookings = room.availableTimes.map(time => new Date(time))
+								.filter(time => time.getTime() === this.state.time.getTime());
+				return room;
+			  }).filter(room => room.bookings.length > 0))	//And only show rooms with free slots
 			  .then(rooms =>
 				this.setState({
 					rooms: rooms
@@ -32,7 +34,7 @@ export default class Bookings extends Component {
 	}
 	
 	getAmenitiesLabel(room) {
-		if(room.amenities.length == 0)
+		if(room.amenities.length <= 0)
 			return "";
 			
 		

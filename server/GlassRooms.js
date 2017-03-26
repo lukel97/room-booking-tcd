@@ -78,7 +78,7 @@ function parseMyGlassRoomBookings(data) {
 	return bookings;
 }
 
-exports.getGlassRoomTimes = function(date, room) {
+exports.getAvailableTimes = function(date, room) {
 	let requestData = `Month=${(date.getMonth() + 1)}&Year=${date.getFullYear()}`;
 	const options = {
 	  protocol: 'https:',
@@ -99,11 +99,22 @@ exports.getGlassRoomTimes = function(date, room) {
 				let rawData = '';
 				res.on('data', (chunk) => rawData += chunk);
 				res.on('end', () => {
+					
+					let bookings = scrapeBookedTimesGlassrooms(rawData).filter(isToday.bind(null, date));
+					let availableTimes = helpers.range(0, 23)
+						.map(hour => {
+							let time = new Date(date.getTime());
+							time.setHours(hour);
+							return time;
+						})
+						.filter(x => !bookings.map(y => y.getTime()).includes(x.getTime()))
+						.filter(isToday.bind(null, date));
+					
 					resolve({
 						roomNumber: room,
 						capacity: getRoomCapacity(rawData),
 						amenities: glassRoomAmenities[parseInt(room)],
-						bookings: scrapeBookedTimesGlassrooms(rawData).filter(isToday.bind(null, date))
+						availableTimes: availableTimes
 					});
 				});
 			});
@@ -140,11 +151,11 @@ function scrapeBookedTimesGlassrooms(data) {
 	var tempArr = new Array();
 	var tempStr;
 	$( textObj ).each(function( index ) {
-	tempStr = $( this ).html();
-	tempArr = tempStr.split("<br>");
-	for (var i = 0; i < tempArr.length; i++) {
-	  arr.push(tempArr[i]);
-	}
+		tempStr = $( this ).html();
+		tempArr = tempStr.split("<br>");
+		for (var i = 0; i < tempArr.length; i++) {
+			arr.push(tempArr[i]);
+		}
 	});
 
 	// ***** FINISHED SCRAPING *****
