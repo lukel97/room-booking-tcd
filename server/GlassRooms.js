@@ -78,14 +78,14 @@ function parseMyGlassRoomBookings(data) {
 	return bookings;
 }
 
-exports.getAvailableTimes = function(date, room) {
+exports.getAvailableTimes = function(date, username, password, room) {
 	let requestData = `Month=${(date.getMonth() + 1)}&Year=${date.getFullYear()}`;
 	const options = {
 	  protocol: 'https:',
 	  host: 'www.scss.tcd.ie',
 	  path: `/cgi-bin/webcal/sgmr/sgmr${room}.pl`,
 	  //args 2 and 3 are the username and password
-	  auth: process.argv.slice(2, 4).join(":"),
+	  auth: username + ":" + password,
 	  method: "SUBMIT",
 	  headers: {
 		  "Content-Length": requestData.length,

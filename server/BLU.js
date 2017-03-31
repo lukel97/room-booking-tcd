@@ -9,6 +9,25 @@ exports.Facility = {
 	JOHN_STEARNE: "14704"
 }
 
+// http://tcd-ie.libcal.com/process_roombookings.php?m=booking_mob
+// fid	7351
+// qcount	1
+// q1	undergraduate?
+// nick	Name
+// email	laulu@tcd.ie
+// lname	Lau
+// fname	Luke
+// t_sch529427614	Room 1 9:00pm - 10:00pm Monday, March 27, 2017
+// dur529427614	60
+// sid[]	529427614
+// t_sch529427613	Room 1 8:00pm - 9:00pm Monday, March 27, 2017
+// dur529427613	60
+// t_sch529427612	Room 1 7:00pm - 8:00pm Monday, March 27, 2017
+// dur529427612	60
+// t_sch529427602	Room 1 9:00am - 10:00am Monday, March 27, 2017
+// dur529427602	60
+// gid	14703
+
 exports.getAvailableTimes = function(facility, date) {
 	let dateParam = date.getFullYear() + "-" + (date.getMonth() + 1).pad(2) + "-" + date.getDate();
 	

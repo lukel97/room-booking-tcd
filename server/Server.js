@@ -3,7 +3,11 @@ const bodyParser = require('body-parser');
 const glassRooms = require('./GlassRooms');
 const blu = require('./BLU');
 const app = express();
+const read = require('read');
 const helpers = require('./Helpers');
+
+var username = "";
+var password = "";
 
 app.use(bodyParser.json());
 
@@ -58,7 +62,7 @@ app.get('/facility/:name/availableTimes', (req, res) => {
 	switch(req.params.name) {
 		case "glass-rooms":
 			//Return the times for all the rooms
-			Promise.all(helpers.range(1, 9).map(glassRooms.getAvailableTimes.bind(null, date)))
+			Promise.all(helpers.range(1, 9).map(glassRooms.getAvailableTimes.bind(null, date, username, password)))
 				.then(times => res.end(JSON.stringify(times)))
 				.catch(error => console.log);
 			break;
@@ -83,11 +87,19 @@ app.get('/facility/:name/availableTimes', (req, res) => {
 	
 });
 
-const server = app.listen(4000, () => {
-  var host = server.address().address
-  var port = server.address().port
-
-  console.log("Listening at http://%s:%s", host, port)
+read({ prompt: 'SCSS username: '}, (error, promptUsername) => {
+  	read({ prompt: 'SCSS password: ', silent: true }, (error, promptPassword) => {
+		username = promptUsername;
+		password = promptPassword;
+		
+		const server = app.listen(4000, () => {
+		  var host = server.address().address
+		  var port = server.address().port
+		
+		  console.log("Listening at http://%s:%s", host, port)
+		});
+	});
 });
+
 
 
