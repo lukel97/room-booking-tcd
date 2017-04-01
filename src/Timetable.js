@@ -119,12 +119,16 @@ export default class Timetable extends Component {
       let numTVs = timeslot.roomsFree.map(r => r.amenities.filter(a => a === Amenities.TV).length > 0);
       let hasTV = numTVs.filter(x => x).length > 0;
       
-      let numFlipcharts = timeslot.roomsFree.map(r => r.amenities.filter(a => a === Amenities.FLIP_CHART).length > 0);
+      let numFlipcharts = timeslot.roomsFree.map(r => r.amenities.filter(a => a === Amenities.SMART_BOARD).length > 0);
       let hasFlipchart = numFlipcharts.filter(x => x).length > 0;
+      
+      let numLaptops = timeslot.roomsFree.map(r => r.amenities.filter(a => a === Amenities.LAPTOP).length > 0);
+      let hasLaptop = numLaptops.filter(x => x).length > 0;
       
       let amenitiesLabel = "";
       if(hasTV) amenitiesLabel += "📺";
       if(hasFlipchart) amenitiesLabel += "📊";
+      if(hasLaptop)	amenitiesLabel += "💻";
       
       //TODO: Pass the time in a better way
       let link = time.toUTCString();

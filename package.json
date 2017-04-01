@@ -10,6 +10,7 @@
     "bootstrap": "4.0.0-alpha.6",
     "cheerio": "^0.22.0",
     "express": "^4.15.0",
+    "google-map-react": "^0.23.0",
     "react": "^15.4.2",
     "react-addons-css-transition-group": "^15.4.2",
     "react-addons-transition-group": "^15.4.2",

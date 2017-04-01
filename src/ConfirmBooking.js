@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router';
 import { Container, Jumbotron, Breadcrumb, BreadcrumbItem, Form, FormGroup, Button, Input, Alert } from 'reactstrap';
+import GoogleMapReact from 'google-map-react';
 
 export default class ConfirmBooking extends Component {
 	
@@ -17,6 +18,10 @@ export default class ConfirmBooking extends Component {
 			isBooked : false,
 			isBooking: false
 		}
+	}
+	
+	componentDidMount() {
+		this.setState({isLoggedIn: window.gapi.auth2.getAuthInstance().isSignedIn.get()});
 	}
 	
 	book() {
@@ -95,7 +100,16 @@ export default class ConfirmBooking extends Component {
 			bottom = (
 				<Alert color="success">
 				  <strong>Booking confirmed.</strong>
+				  <br/>
 				  {this.state.confirmationMessage}
+				</Alert>
+			);
+		} else if(!this.state.isLoggedIn) {
+			bottom = (
+				<Alert color="warning">
+				  <strong>You must log in first.</strong>
+				  <br/>
+				  You can log into your tcd account from the menu in the navigation bar.
 				</Alert>
 			);
 		} else {
@@ -112,7 +126,7 @@ export default class ConfirmBooking extends Component {
 				: null;
 			
 			bottom = (
-				<Form className="pull-right">
+				<Form>
 					{scssLogin}
 					<FormGroup>
 						<Button color="primary" onClick={this.book} disabled={this.state.isBooking}>
@@ -132,9 +146,37 @@ export default class ConfirmBooking extends Component {
 					<BreadcrumbItem active>Room {this.state.room}</BreadcrumbItem>
 				</Breadcrumb>
 				<Jumbotron>
-					<h1 className="display-3">{timeLabel}</h1>
+					<h1 className="display-3 text-center">{timeLabel}</h1>
 					<h3>{dateLabel}</h3>
 					<h5>Room {this.state.room} @ {this.state.facility.name}</h5>
+					<div style={{
+						height: "200px",
+						borderRadius: "0.3rem",
+						overflow: "hidden",
+						transform: "translate3d(0px, 0px, 0px)"
+					}}>
+					<GoogleMapReact
+						defaultCenter={{lat: 53.343467, lng: -6.253183}}	//Cricket pitch
+						defaultZoom={15}
+						bootstrapURLKeys={{ key: "AIzaSyAvfntCB840n7-qmQLUIMkkedS1j-zQ9R4" }}
+						onGoogleApiLoaded={({map, maps}) => {
+							let options = {
+								disableDefaultUI: true,
+								draggable: false,
+								zoomControl: false,
+								scrollwheel: false
+							};
+							map.setOptions(options);
+							new maps.Marker({
+							  position: this.state.facility.location,
+							  map: map,
+							  title: this.state.facility.name
+							});
+						}}
+						yesIWantToUseGoogleMapApiInternals
+					/>
+					</div>
+					<br/>
 					{bottom}
 				</Jumbotron>
 			</Container>

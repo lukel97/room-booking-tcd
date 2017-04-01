@@ -19,9 +19,10 @@ export default class Facilities extends Component {
 }
 
 export class Facility {
-  constructor(name, image, requiresSCSSLogin = false) {
+  constructor(name, image, location, requiresSCSSLogin = false) {
     this.name = name;
     this.image = image;
+    this.location = location;
     this.requiresSCSSLogin = requiresSCSSLogin;
   }
   
@@ -40,10 +41,9 @@ export class Facility {
     let queryParams = `?date=${encodeURIComponent(date.toISOString())}`;
     return fetch(`/facility/${this.getURLName()}/availableTimes${queryParams}`, { method: "get" })
       .then(response => response.json())
-      .then(rooms => {
-        rooms.map(room => room.availableTimes.map(time => new Date(time))).forEach(console.log);
-        return rooms.filter(room => room.availableTimes.filter(time => new Date(time).getTime() === date.getTime()).length > 0);
-      })
+      .then(rooms =>
+        rooms.filter(room => room.availableTimes.filter(time => new Date(time).getTime() === date.getTime()).length > 0)
+      )
       .then(availableRooms => availableRooms.length);
   }
 }

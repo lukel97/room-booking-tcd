@@ -77,10 +77,10 @@ class App extends Component {
   }
 }
                       
-const facilities = [new Facility("Glass Rooms", require("./img/glassRooms.jpg"), true),
-                    new Facility("Berkeley", require("./img/berkeley.jpg")),
-                    new Facility("Hamilton", require("./img/hamilton.jpg")),
-                    new Facility("John Stearne", require("./img/johnStearne.jpg"))];
+const facilities = [new Facility("Glass Rooms", require("./img/glassRooms.jpg"), {lat: 53.343502, lng: -6.250462}, true),
+                    new Facility("Berkeley", require("./img/berkeley.jpg"), {lat: 53.343567, lng: -6.255924}),
+                    new Facility("Hamilton", require("./img/hamilton.jpg"), {lat: 53.343057, lng: -6.250519}),
+                    new Facility("John Stearne", require("./img/johnStearne.jpg"), {lat: 53.343646, lng: -6.247580})];
 
 render(
   <Router history={browserHistory}>

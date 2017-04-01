@@ -47,9 +47,13 @@ export default class Bookings extends Component {
 		if(numTVs > 0)
 			label += `${numTVs} TV${numTVs !== 1 ? "s" : ""} 📺`;
 		
-		let numFlipcharts = room.amenities.filter(x => x === Amenities.FLIP_CHART).length;
+		let numFlipcharts = room.amenities.filter(x => x === Amenities.SMART_BOARD).length;
 		if(numFlipcharts > 0)
-			label += `${numFlipcharts} flip chart${numFlipcharts !== 1 ? "s" : ""} 📊`;
+			label += `${numFlipcharts} smart board${numFlipcharts !== 1 ? "s" : ""} 📊`;
+			
+		let numLaptops = room.amenities.filter(x => x === Amenities.LAPTOP).length;
+		if(numLaptops > 0)
+			label += `${numLaptops} laptop${numLaptops !== 1 ? "s" : ""} 💻`;
 		
 		return label;
 	}

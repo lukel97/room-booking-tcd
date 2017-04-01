@@ -9,6 +9,24 @@ exports.Facility = {
 	JOHN_STEARNE: "14704"
 }
 
+const blueAmenities = {
+	//Berkeley
+	"14647": {	1: [],
+				2: [],
+				3: [],
+				4: [],
+				5: [Amenities.LAPTOP, Amenities.SMART_BOARD],
+				6: [Amenities.LAPTOP, Amenities.SMART_BOARD],
+				7: [],
+				8: [],
+				9: [] },
+	"14703": { 1: [] },
+	//John Stearne
+	"14704": { 	1: [],
+				2: [Amenities.LAPTOP],
+				3: [] }
+};
+
 exports.makeBooking = function(firstName, lastName, email, facility, date, roomNumber) {
 	let dateParam = date.getFullYear() + "-" + (date.getMonth() + 1).pad(2) + "-" + date.getDate();
 	
@@ -86,7 +104,7 @@ exports.getAvailableTimes = function(facility, date) {
 	let dateParam = date.getFullYear() + "-" + (date.getMonth() + 1).pad(2) + "-" + date.getDate();
 	
 	return helpers.getPageHttp(`http://tcd-ie.libcal.com/rooms_acc.php?gid=${facility}&d=${dateParam}&cap=0`)
-		.then(data => scrapeAvailableTimesBlu(data, date));
+		.then(data => scrapeAvailableTimesBlu(data, facility));
 }
 
 function getTimeFromLabel(label, day) {
@@ -110,7 +128,7 @@ function getTimeFromLabel(label, day) {
 
 //--------------------------------------------
 
-function scrapeAvailableTimesBlu(data) {
+function scrapeAvailableTimesBlu(data, facility) {
 	let $ = cheerio.load(data);
 	var fieldsets = $("fieldset");
 	var length = fieldsets.length;
@@ -145,7 +163,7 @@ function scrapeAvailableTimesBlu(data) {
 			let room = {	roomNumber: index,
 							availableTimes: availableTimes,
 							capacity: capacity,
-							amenities: [] };
+							amenities: blueAmenities[facility][index] };
 			
 			//clear tempArr
 			tempArr = [];
