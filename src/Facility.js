@@ -70,7 +70,7 @@ class FacilityCard extends Component {
         <Col xs='12' lg='3'>
           <Link to={this.props.facility.getURLName()} >
             <Card inverse>
-              <CardImg height='200px' style={{objectFit: 'cover'}} src={this.props.facility.image}/>
+              <CardImg height='200px' style={{objectFit: 'cover', filter: 'brightness(70%)'}} src={this.props.facility.image}/>
               <CardImgOverlay>
                 <CardTitle>{this.props.facility.name}</CardTitle>
                 <CardSubtitle>{this.state.freeRoomsLabel}</CardSubtitle>
