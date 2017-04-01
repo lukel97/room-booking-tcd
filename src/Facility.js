@@ -19,9 +19,10 @@ export default class Facilities extends Component {
 }
 
 export class Facility {
-  constructor(name, image) {
+  constructor(name, image, requiresSCSSLogin = false) {
     this.name = name;
     this.image = image;
+    this.requiresSCSSLogin = requiresSCSSLogin;
   }
   
   getURLName() {

@@ -9,30 +9,102 @@ exports.Facility = {
 	JOHN_STEARNE: "14704"
 }
 
-// http://tcd-ie.libcal.com/process_roombookings.php?m=booking_mob
-// fid	7351
-// qcount	1
-// q1	undergraduate?
-// nick	Name
-// email	laulu@tcd.ie
-// lname	Lau
-// fname	Luke
-// t_sch529427614	Room 1 9:00pm - 10:00pm Monday, March 27, 2017
-// dur529427614	60
-// sid[]	529427614
-// t_sch529427613	Room 1 8:00pm - 9:00pm Monday, March 27, 2017
-// dur529427613	60
-// t_sch529427612	Room 1 7:00pm - 8:00pm Monday, March 27, 2017
-// dur529427612	60
-// t_sch529427602	Room 1 9:00am - 10:00am Monday, March 27, 2017
-// dur529427602	60
-// gid	14703
+exports.makeBooking = function(firstName, lastName, email, facility, date, roomNumber) {
+	let dateParam = date.getFullYear() + "-" + (date.getMonth() + 1).pad(2) + "-" + date.getDate();
+	
+
+	let getOptions = {
+		host: "tcd-ie.libcal.com",
+		path: `/rooms_acc.php?gid=${facility}&d=${dateParam}&cap=0`,
+		headers: {
+			"Upgrade-Insecure-Requests":	"1",
+			"User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_4) AppleWebKit/603.1.30 (KHTML, like Gecko) Version/10.1 Safari/603.1.30",
+			"Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
+		}
+	};
+	
+	return helpers.getPageHttp(getOptions, true)
+		.then(response => {
+			let cookies = response.headers["set-cookie"].map(cookie => cookie.split(";")[0]);
+			
+			let $ = cheerio.load(response.data);
+			
+			let room = $("fieldset").filter((index, element) => {
+				let label = $(element).find("legend").find("h2");
+				
+				if(label.text().match(/Room (\d+)/) == null)
+					return false;
+					
+				return label.text().match(/Room (\d+)/)[1] === roomNumber;
+			}).first();
+
+			let label = room.find("label").filter((index, element) => {
+				if($(element).find("input:checkbox").length <= 0)
+					return false;
+				
+				return getTimeFromLabel($(element).text(), date).getTime() === date.getTime();
+			}).first();
+			
+			label.find("input:checkbox").attr("checked", true);
+			
+			$("input[name='fname']").val(firstName);
+			$("input[name='lname']").val(lastName);
+			$("input[name='email']").val(email);
+			$("select[name='q1']").val("undergraduate?");
+			$("input[name='nick']").val("");
+
+			let postData = $("#roombookingform").serialize();
+
+			let postOptions = {
+				host: "tcd-ie.libcal.com",
+				path: "/process_roombookings.php?m=booking_mob",
+				headers: {
+					"Content-Type":	 "application/x-www-form-urlencoded; charset=UTF-8",
+					"Origin": "http://tcd-ie.libcal.com",
+					"User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_4) AppleWebKit/603.1.30 (KHTML, like Gecko) Version/10.1 Safari/603.1.30",
+					"Accept": "application/json, text/javascript, */*; q=0.01",
+					"Referer":	`http://tcd-ie.libcal.com/rooms_acc.php?gid=${facility}&d=${dateParam}&cap=0`,
+					"X-Requested-With": "XMLHttpRequest",
+					"Cookie": cookies.join(";")
+				}
+			};
+			return helpers.postHttp(postData, postOptions);
+		})
+		.then(data => {
+			let response = JSON.parse(data);
+			if(response.status !== 2) {
+				let errorMessage = response.msg;
+				if(response.msg.includes("Error - No time slots selected"))
+					errorMessage = "The room is no longer available at this time."
+				return Promise.resolve({success: false, message: errorMessage});
+			}
+			return Promise.resolve({success: true, message: response.msg});
+		});
+}
 
 exports.getAvailableTimes = function(facility, date) {
 	let dateParam = date.getFullYear() + "-" + (date.getMonth() + 1).pad(2) + "-" + date.getDate();
 	
 	return helpers.getPageHttp(`http://tcd-ie.libcal.com/rooms_acc.php?gid=${facility}&d=${dateParam}&cap=0`)
 		.then(data => scrapeAvailableTimesBlu(data, date));
+}
+
+function getTimeFromLabel(label, day) {
+	let time = label.trim().match(/^(.*) -.*$/)[1];
+	
+	//Convert 12 hour to 24 hour
+	let isPm = time.includes("pm");
+	let hour = parseInt(time.match(/\d+/g)[0]);
+	if(isPm)
+		hour += 12;
+	
+	let date = new Date(day.getTime());
+	date.setHours(hour);
+	date.setMinutes(0);
+	date.setSeconds(0);
+	date.setMilliseconds(0);
+	
+	return date;
 }
 
 
@@ -66,21 +138,7 @@ function scrapeAvailableTimesBlu(data) {
 			//iterate over each available time
 			$(availTimes).each(function(i, e){
 				//Push each time to a temp array
-				let time = $(this).text().trim().match(/^(.*) -.*$/)[1];
-				
-				//Convert 12 hour to 24 hour
-				let isPm = time.includes("pm");
-				let hour = parseInt(time.match(/\d+/g)[0]);
-				if(isPm)
-					hour += 12;
-				
-				let date = new Date(day.getTime());
-				date.setHours(hour);
-				date.setMinutes(0);
-				date.setSeconds(0);
-				date.setMilliseconds(0);
-				
-				availableTimes.push(date);
+				availableTimes.push(getTimeFromLabel($(this).text(), day));
 			});
 			
 			//Save to the temp object

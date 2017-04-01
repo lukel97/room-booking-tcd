@@ -77,7 +77,7 @@ class App extends Component {
   }
 }
                       
-const facilities = [new Facility("Glass Rooms", require("./img/glassRooms.jpg")),
+const facilities = [new Facility("Glass Rooms", require("./img/glassRooms.jpg"), true),
                     new Facility("Berkeley", require("./img/berkeley.jpg")),
                     new Facility("Hamilton", require("./img/hamilton.jpg")),
                     new Facility("John Stearne", require("./img/johnStearne.jpg"))];

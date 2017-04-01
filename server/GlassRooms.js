@@ -290,14 +290,14 @@ exports.makeGlassRoomBooking = function(username, password, fullName, date, room
 					let $ = cheerio.load(rawData);
 
 					if($("title").text().includes("Booking Request Successful"))
-						resolve();
+						resolve({success: true, message: ""});
 					else {
 						var errorMessage = "";
 
 						$("font[color=RED]").each((index, element) =>
 							errorMessage += $(element).text() + "\n");
 
-						reject(errorMessage);
+						resolve({success: false, message: errorMessage});
 					}
 				});
 			});

@@ -11,13 +11,54 @@ var password = "";
 
 app.use(bodyParser.json());
 
-app.post('/facility/:name/room/:room/book', (req, res) => {
+app.post('/facility/:facility/room/:room/book', (req, res) => {
 	let date = new Date(req.body.date);
 	let username = req.body.username;
 	let password = req.body.password;
+	
+	let givenName = req.body.givenName;
+	let familyName = req.body.familyName;
 	let fullName = req.body.fullName;
-	glassRooms.makeGlassRoomBooking(username, password, fullName, date, req.params.room)
-		.then((value) => res.end("success"), (error) => res.end(error));
+	
+	let email = req.body.email;
+	
+	switch(req.params.facility) {
+		case "glass-rooms":
+			glassRooms.makeGlassRoomBooking(username, password, fullName, date, req.params.room)
+				.then(response => res.end(JSON.stringify(response)))
+				.catch(error => {
+					console.log(error);
+					res.end("Internal server error");
+				});
+			break;
+		case "berkeley":
+			blu.makeBooking(givenName, familyName, email, blu.Facility.BERKELEY, date, req.params.room)
+				.then(response => res.end(JSON.stringify(response)))
+				.catch(error => {
+					console.log(error);
+					res.end("Internal server error");
+				});
+			break;
+		case "hamilton":
+			blu.makeBooking(givenName, familyName, email, blu.Facility.HAMILTON, date, req.params.room)
+				.then(response => res.end(JSON.stringify(response)))
+				.catch(error => {
+					console.log(error);
+					res.end("Internal server error");
+				});
+			break;
+		case "john-stearne":
+			blu.makeBooking(givenName, familyName, email, blu.Facility.JOHN_STEARNE, date, req.params.room)
+				.then(response => res.end(JSON.stringify(response)))
+				.catch(error => {
+					console.log(error);
+					res.end("Internal server error");
+				});
+			break;
+		default:
+			res.end("Not a valid facility");
+	}
+	
 });
 
 app.post('/facility/:name/room/:room/cancel', (req,res) =>{
