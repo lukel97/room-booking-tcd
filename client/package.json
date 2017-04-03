@@ -2,10 +2,8 @@
   "name": "room-booking-tcd",
   "version": "0.1.0",
   "private": true,
-  "devDependencies": {
-    "react-scripts": "0.9.5"
-  },
   "dependencies": {
+    "react-scripts": "0.9.5",
     "bootstrap": "4.0.0-alpha.6",
     "date-input-polyfill": "^2.13.0",
     "google-map-react": "^0.23.0",
