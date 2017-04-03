@@ -1,30 +1,28 @@
 {
-  "name": "room-booking-tcd",
-  "version": "0.1.0",
-  "private": true,
-  "devDependencies": {
-    "react-scripts": "0.9.5"
-  },
-  "dependencies": {
-    "body-parser": "^1.17.1",
-    "bootstrap": "4.0.0-alpha.6",
-    "cheerio": "^0.22.0",
-    "express": "^4.15.0",
-    "google-map-react": "^0.23.0",
-    "react": "^15.4.2",
-    "react-addons-css-transition-group": "^15.4.2",
-    "react-addons-transition-group": "^15.4.2",
-    "react-dom": "^15.4.2",
-    "react-router": "^3.0.2",
-    "react-svg": "^2.1.19",
-    "reactstrap": "^4.2.0",
-    "read": "^1.0.7"
-  },
-  "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test --env=jsdom",
-    "eject": "react-scripts eject"
-  },
-  "proxy": "http://localhost:4000"
+	"name": "room-booking-tcd",
+	"version": "1.0.0",
+	"private": true,
+	"description": "A web app for booking group study rooms throughout Trinity",
+	"main": "server/Server.js",
+	"author": "luke <luke_lau@icloud.com>",
+	"license": "MIT",
+	"scripts": {
+		"start": "node server/Server.js",
+		"heroku-postbuild": "cd client && yarn install && yarn build"
+	},
+	"dependencies": {
+		"body-parser": "^1.17.1",
+		"cheerio": "^0.22.0",
+		"express": "^4.15.0",
+		"read": "^1.0.7"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/mars/heroku-cra-node.git"
+	},
+	"keywords": [
+		"node",
+		"heroku",
+		"react"
+	]
 }

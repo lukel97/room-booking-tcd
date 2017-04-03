@@ -1,4 +1,4 @@
-const Amenities = require('./Amenities');
+const Amenities = require('../shared/Amenities');
 const helpers = require('./Helpers');
 const https = require('https');
 const cheerio = require('cheerio');

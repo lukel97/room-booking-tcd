@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { Link } from 'react-router';
 import { Container, Breadcrumb, BreadcrumbItem, CardColumns, Card, CardBlock, CardTitle, CardSubtitle, CardText, Button } from 'reactstrap';
 import ReactSVG from 'react-svg';
-import Amenities from '../server/Amenities';
+import Amenities from '../../shared/Amenities';
 
 export default class Bookings extends Component {
 	

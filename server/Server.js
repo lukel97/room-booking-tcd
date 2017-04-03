@@ -4,12 +4,15 @@ const glassRooms = require('./GlassRooms');
 const blu = require('./BLU');
 const app = express();
 const read = require('read');
+const path = require('path');
 const helpers = require('./Helpers');
 
 var username = "";
 var password = "";
 
 app.use(bodyParser.json());
+
+app.use(express.static(path.resolve(__dirname, '../client/build')));
 
 app.post('/facility/:facility/room/:room/book', (req, res) => {
 	let date = new Date(req.body.date);
@@ -128,19 +131,32 @@ app.get('/facility/:name/availableTimes', (req, res) => {
 	
 });
 
-read({ prompt: 'SCSS username: '}, (error, promptUsername) => {
-  	read({ prompt: 'SCSS password: ', silent: true }, (error, promptPassword) => {
-		username = promptUsername;
-		password = promptPassword;
-		
-		const server = app.listen(4000, () => {
-		  var host = server.address().address
-		  var port = server.address().port
-		
-		  console.log("Listening at http://%s:%s", host, port)
+username = process.env.scssUsername;
+password = process.env.scssPassword;
+if(username === undefined || password === undefined) {
+	read({ prompt: 'SCSS username: '}, (error, promptUsername) => {
+		read({ prompt: 'SCSS password: ', silent: true }, (error, promptPassword) => {
+			username = promptUsername;
+			password = promptPassword;
+			startServer();
 		});
 	});
+} else {
+	startServer();
+}
+
+
+function startServer() {	
+	let port = process.env.PORT || 5000;
+	const server = app.listen(port, () => {
+		var host = server.address().address
+		var port = server.address().port
+
+		console.log("Listening at http://%s:%s", host, port)
+	});
+}
+
+
+app.get('*', function (req, res) {
+  res.sendFile(path.join(__dirname, '../client/build', 'index.html'));
 });
-
-
-
