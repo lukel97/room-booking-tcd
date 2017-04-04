@@ -65,19 +65,23 @@ export default class Bookings extends Component {
 				</Card>);
 		});
 
+		let getBookings = () => fetch("/facility/glass-rooms/bookings?username=" + this.state.username + "&password=" + this.state.password, { method: "get" })	// double check this is done correctly
+			.then(response => response.json())
+			.then(rooms =>
+				this.setState({
+					rooms: rooms
+				})
+				, error => console.log);
 
-  	var bottom;
-
-
-
-  	 if(this.state.alertMessage === "success"){
-  	 	bottom = (
+		var bottom;
+		if(this.state.alertMessage === "success"){
+			bottom = (
 				<Alert color="success">
-				  <strong>Cancel Successfull.</strong> An email has been sent to testEmail@tcd.ie
+				<strong>Cancel Successfull.</strong> An email has been sent to testEmail@tcd.ie
 				</Alert>
-				);
+			);
 		}
-    return (
+		return (
       <div>
 			<FormGroup>
 			<Input type="text" placeholder="username" onChange={this.usernameChanged}/>
@@ -85,16 +89,13 @@ export default class Bookings extends Component {
 			<FormGroup>
 			<Input type="password" placeholder="password" onChange={this.passwordChanged}/>
 			</FormGroup>
-			<Button onClick={() => fetch("/facility/glass-rooms/bookings?username=" + this.state.username + "&password=" + this.state.password, { method: "get" })	// double check this is done correctly
-				.then(response => response.json())
-				.then(rooms =>
-					this.setState({
-						rooms: rooms
-					})
-					, error => console.log)}>Login</Button>
-
+			<Button onClick={getBookings}>Login</Button>
       	{bottom}
       	{rooms}
+				<Alert color="info">
+					<strong>Looking for your BLU/Hamilton/John Stearne bookings?</strong>
+					You can cancel them via the link sent to your email address.
+				</Alert>
       </div>
     );
   }
