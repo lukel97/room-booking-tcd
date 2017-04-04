@@ -3,8 +3,7 @@
 // Issue no.3: Cancelling for glassrooms -> gcancelling the rest
 
 import React, { Component } from 'react';
-import { Card, CardText, CardBlock,
-  CardTitle, Button, Alert } from 'reactstrap';	// need to import other stuff i'd say
+import { Card, CardText, CardBlock, CardTitle, Button, Alert, Input, FormGroup } from 'reactstrap';	// need to import other stuff i'd say
 
 export default class Bookings extends Component {
 
@@ -18,23 +17,15 @@ export default class Bookings extends Component {
 	    
 	    this.cancelBooking = this.cancelBooking.bind(this);
 
-	    
-		let username = encodeURIComponent("macfhlar");		// Using mine for now to test if it is working
-		let password = encodeURIComponent("Rossmore12!");	// Will need to update this to get user's password + username
+		this.usernameChanged = this.usernameChanged.bind(this);
+		this.passwordChanged = this.passwordChanged.bind(this);
 
-	    fetch("/facility/glass-rooms/bookings?username=" + username + "&password=" + password, { method: "get" })	// double check this is done correctly
-	    	.then(response => response.json())
-	    	.then(rooms =>
-		    	this.setState({
-			    	rooms: rooms
-		    	})
-	    	, error => console.log);
 	}
 
 
 	cancelBooking(roomNumber){
-		let username = encodeURIComponent("macfhlar");		// Using mine for now to test if it is working
-		let password = encodeURIComponent("Rossmore12!");	// Will need to update this to get user's password + username
+		let username = encodeURIComponent(this.state.username);		// Using mine for now to test if it is working
+		let password = encodeURIComponent(this.state.password);	// Will need to update this to get user's password + username
 
 		fetch("/facility/glass-rooms/room/" + roomNumber + "/cancel?username=" + username + "&password=" + password, { method: "post" })
 			.then(response => response.text())
@@ -48,6 +39,14 @@ export default class Bookings extends Component {
 			});
 	}
 
+	usernameChanged(e) {
+		this.setState({username: e.target.value});
+	}
+	
+	passwordChanged(e) {
+		this.setState({password: e.target.value});
+	}
+
   render() {
   	let rooms = this.state.rooms.map(room => {
   			let bookingDate = new Date(room.bookings[0]);
@@ -55,8 +54,9 @@ export default class Bookings extends Component {
   			let dateString = bookingDate.toLocaleString('en-GB', options);
   			return (
 				<Card className="mt-4" key={room.roomNumber}>
+				
 					<CardBlock>
-						<CardTitle>Room {room.roomNumber}</CardTitle>
+					<CardTitle>Room {room.roomNumber}</CardTitle>
 						<CardText>Booked for {dateString}</CardText>
 						<Button onClick={() => {
 									this.cancelBooking(room.roomNumber);
@@ -79,6 +79,20 @@ export default class Bookings extends Component {
 		}
     return (
       <div>
+			<FormGroup>
+			<Input type="text" placeholder="username" onChange={this.usernameChanged}/>
+			</FormGroup>
+			<FormGroup>
+			<Input type="password" placeholder="password" onChange={this.passwordChanged}/>
+			</FormGroup>
+			<Button onClick={() => fetch("/facility/glass-rooms/bookings?username=" + this.state.username + "&password=" + this.state.password, { method: "get" })	// double check this is done correctly
+				.then(response => response.json())
+				.then(rooms =>
+					this.setState({
+						rooms: rooms
+					})
+					, error => console.log)}>Login</Button>
+
       	{bottom}
       	{rooms}
       </div>
