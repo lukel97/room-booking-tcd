@@ -284,26 +284,40 @@ exports.makeGlassRoomBooking = function(username, password, fullName, date, room
 	return new Promise((resolve, reject) => {
 		try {
 			let request = https.request(options, function(res) {
-				let rawData = '';
-				res.on('data', (chunk) => rawData += chunk);
-				res.on('end', () => {
-					let $ = cheerio.load(rawData);
+			
+				switch(res.statusCode) {
+				case 401:
+					resolve({success: false, message: "Incorrect username or password"});
+					return;
+				case 200:
+					let rawData = '';
+					res.on('data', (chunk) => rawData += chunk);
+					res.on('end', () => {
+						console.log(rawData);
+						let $ = cheerio.load(rawData);
 
-					if($("title").text().includes("Booking Request Successful"))
-						resolve({success: true, message: ""});
-					else {
-						var errorMessage = "";
+						if($("title").text().includes("Booking request successful"))
+							resolve({success: true, message: ""});
+						else {
+							var errorMessage = "";
 
-						$("font[color=RED]").each((index, element) =>
-							errorMessage += $(element).text() + "\n");
+							$("font[color=RED]").each((index, element) =>
+								errorMessage += $(element).text() + "\n");
 
-						resolve({success: false, message: errorMessage});
-					}
-				});
+							resolve({success: false, message: errorMessage});
+						}
+					});
+					return;
+				default:
+					console.log(`Error booking glass room: ${res.statusCode}`);
+					resolve({success: false, message: "An unknown error occurred"});
+					return;
+				}
 			});
 			request.write(requestData);
 			request.end();
 		} catch(error) {
+			console.log(error);
 			reject(error);
 		}
 	});

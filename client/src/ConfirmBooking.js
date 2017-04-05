@@ -86,15 +86,40 @@ export default class ConfirmBooking extends Component {
 		
 		let breadcrumbDateLabel = this.state.time.toLocaleString('en-GB', {...timeOptions, ...dateOptions});
 		
-		var bottom;
+		let scssLogin = this.state.facility.requiresSCSSLogin ?
+				(<div>
+					<FormGroup>
+						<Input type="text" placeholder="SCSS username" onChange={this.usernameChanged}/>
+					</FormGroup>
+					<FormGroup>
+						<Input type="password" placeholder="SCSS password" onChange={this.passwordChanged}/>
+					</FormGroup>
+				</div>)
+				: null;
+		
+		let form = (
+				<Form>
+					{scssLogin}
+					<FormGroup>
+						<Button type="submit" onClick={this.book} disabled={this.state.isBooking}>
+							{this.state.isBooking ? "Booking..." : "Book now"}
+						</Button>
+					</FormGroup>
+				</Form>
+			);
+		
+		let bottom;
 		
 		if(this.state.errorTitle) {
 			bottom = (
-				<Alert color="danger">
-				  <strong>{this.state.errorTitle}</strong>
-				  <br/>
-				  {this.state.errorMessage}
-				</Alert>
+				<div>
+					<Alert color="danger">
+					  <strong>{this.state.errorTitle}</strong>
+					  <br/>
+					  {this.state.errorMessage}
+					</Alert>
+					{form}
+				</div>
 			);
 		} else if(this.state.isBooked) {
 			bottom = (
@@ -113,28 +138,7 @@ export default class ConfirmBooking extends Component {
 				</Alert>
 			);
 		} else {
-			
-			let scssLogin = this.state.facility.requiresSCSSLogin ?
-				(<div>
-					<FormGroup>
-						<Input type="text" placeholder="username" onChange={this.usernameChanged}/>
-					</FormGroup>
-					<FormGroup>
-						<Input type="password" placeholder="password" onChange={this.passwordChanged}/>
-					</FormGroup>
-				</div>)
-				: null;
-			
-			bottom = (
-				<Form>
-					{scssLogin}
-					<FormGroup>
-						<Button color="primary" onClick={this.book} disabled={this.state.isBooking}>
-							{this.state.isBooking ? "Booking..." : "Book now"}
-						</Button>
-					</FormGroup>
-				</Form>
-			);
+			bottom = form;
 		}
 
 		return (
