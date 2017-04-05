@@ -16,3 +16,14 @@ body {
 .roomsAvailable {
   flex-grow: 2;
 }
+
+.breadcrumb {
+	overflow-x: scroll;
+	white-space: nowrap;
+	-webkit-overflow-scrolling: touch;
+}
+
+.breadcrumb .breadcrumb-item {
+	float: none;
+	display: inline-block;
+}
