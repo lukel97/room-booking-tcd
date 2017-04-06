@@ -147,7 +147,7 @@ if(username === undefined || password === undefined) {
 
 
 function startServer() {	
-	let port = process.env.PORT || 5000;
+	let port = process.env.PORT || 4000;
 	const server = app.listen(port, () => {
 		var host = server.address().address
 		var port = server.address().port
@@ -156,7 +156,6 @@ function startServer() {
 	});
 }
 
-
 app.get('*', function (req, res) {
-  res.sendFile(path.join(__dirname, '../client/build', 'index.html'));
+	res.sendFile(path.join(__dirname, '../client/build', 'index.html'));
 });

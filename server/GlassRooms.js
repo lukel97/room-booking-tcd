@@ -203,7 +203,6 @@ function scrapeBookedTimesGlassrooms(data) {
 	return monthBookings;
 }
 
-//value="20170317|09:00-10:00|user|macfhlar|Ronan Macfhlannchadha|bacsb2|"
 exports.cancelGlassRoomBooking = function(username, password, room, cancelValue){
 	let requestData = `Cancel=${cancelValue}`;
 
@@ -293,11 +292,10 @@ exports.makeGlassRoomBooking = function(username, password, fullName, date, room
 					let rawData = '';
 					res.on('data', (chunk) => rawData += chunk);
 					res.on('end', () => {
-						console.log(rawData);
 						let $ = cheerio.load(rawData);
 
-						if($("title").text().includes("Booking request successful"))
-							resolve({success: true, message: ""});
+						if($("title").text().toLowerCase().includes("booking request successful"))
+							resolve({success: true});
 						else {
 							var errorMessage = "";
 
