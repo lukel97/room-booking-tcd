@@ -17,6 +17,8 @@ body {
   flex-grow: 2;
 }
 
+
+/* Makes the breadcrumb scroll horizontally when it's too long */
 .breadcrumb {
 	overflow-x: scroll;
 	white-space: nowrap;
