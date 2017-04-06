@@ -8,28 +8,36 @@ export default class Header extends Component {
 
     this.toggle = this.toggle.bind(this);
     this.state = {
-      isOpen: false
+      isOpen: false,
+      isSignedIn: false
     };
   }
+
+	componentWillReceiveProps(props) {
+		this.setState({isSignedIn: props.isSignedIn});
+	}
   
   toggle() {
     this.setState({
       isOpen: !this.state.isOpen
     });
   }
-  
-  signOut() {
-    window.gapi.auth2.getAuthInstance().signOut();
-  }
 
   render() {
+  
+  	if(!this.state.isSignedIn && window.gapi != null) {
+    	window.gapi.signin2.render('signIn', {
+			'onfailure': (e) => {console.log(e)}
+    	});
+    }
+  
     let navItems = [];
-    if(this.props.isSignedIn) {
+    if(this.state.isSignedIn) {
       navItems.push(<NavItem key="bookings">
           <NavLink href="/bookings/">My bookings</NavLink>
         </NavItem>);
       navItems.push(<NavItem key="signOut">
-          <NavLink href="/" onClick={this.signOut}>Log out</NavLink>
+          <NavLink href="/" onClick={this.props.signOut}>Log out</NavLink>
         </NavItem>);
     } else {
       navItems.push(<NavItem id="signIn" key="signIn"></NavItem>);

@@ -16,8 +16,11 @@ class App extends Component {
     super(props);
     
     this.state = {
-      isSignedIn: false
-    };
+    	auth2: null,
+    	isSignedIn: false
+	};
+	
+	this.signOut = this.signOut.bind(this);
   }
   
   componentDidMount() {
@@ -47,34 +50,36 @@ class App extends Component {
           });
         }
         
-        if(!window.gapi.auth2.getAuthInstance().isSignedIn.get()) {
-          window.gapi.signin2.render('signIn', {
-            'onsuccess': this.onSignIn,
-            'onfailure': (e) => {console.log(e)}
-          });
-        }
-        
-        window.gapi.auth2.getAuthInstance().isSignedIn.listen((signedIn) => {
-          this.setState({
-            isSignedIn: signedIn
-          });
-        });
+		this.setState({
+			auth2: window.gapi.auth2.getAuthInstance()
+		});
+		
+		window.gapi.auth2.getAuthInstance().isSignedIn.listen(isSignedIn => {
+			this.setState({
+				isSignedIn: isSignedIn
+			});
+		});
+		
       });
     });
   }
-    
-  onSignIn(googleUser) {
+	
+	signOut() {
+    	this.state.auth2.signOut();
+ 	}
 
-  }
-
-  render() {
-    return (
-      <div>
-      <Header isSignedIn={this.state.isSignedIn}/>
-      {this.props.children}
-      </div>
-    );
-  }
+	render() {
+		return (
+			<div>
+				<Header isSignedIn={this.state.isSignedIn}
+						signOut={this.signOut}/>
+				{ this.props.children && React.cloneElement(this.props.children, {
+					auth2: this.state.auth2, 
+					isSignedIn: this.state.isSignedIn
+				}) }
+			</div>
+		);
+	}
 }
                       
 const facilities = [new Facility("Glass Rooms", require("./img/glassRooms.jpg"), {lat: 53.343502, lng: -6.250462}, true),
@@ -86,10 +91,10 @@ render(
   <Router history={browserHistory}>
     <Route path='/' component={App}>
       <IndexRoute component={Facilities} facilities={facilities}/>
-      <Route path='bookings' component={Bookings} facilities={facilities}/>
-      <Route path=':facility/:time' component={Rooms} facilities={facilities}/>
-      <Route path=":facility/:time/:room" component={ConfirmBooking} facilities={facilities}/>
-      <Route path=':facility' component={Timetable} facilities={facilities}/>
+	  <Route path='bookings' component={Bookings} facilities={facilities}/>
+	  <Route path=':facility/:time' component={Rooms} facilities={facilities}/>
+	  <Route path=":facility/:time/:room" component={ConfirmBooking} facilities={facilities}/>
+	  <Route path=':facility' component={Timetable} facilities={facilities}/>
     </Route>
   </Router>,
   document.getElementById('root')

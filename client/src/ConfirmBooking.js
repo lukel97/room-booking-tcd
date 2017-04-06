@@ -16,20 +16,21 @@ export default class ConfirmBooking extends Component {
 			time: new Date(this.props.params.time),
 			room: this.props.params.room,
 			isBooked : false,
-			isBooking: false
+			isBooking: false,
+			auth2: this.props.auth2,
+			isSignedIn: this.props.isSignedIn
 		}
 	}
 	
-	componentDidMount() {
-		this.setState({isLoggedIn: window.gapi.auth2.getAuthInstance().isSignedIn.get()});
+	componentWillReceiveProps(props) {
+		this.setState({auth2: props.auth2, isSignedIn: props.isSignedIn});
 	}
 	
 	book() {
-		let auth2 = window.gapi.auth2.getAuthInstance();
-		if(!auth2.isSignedIn.get())
+		if(!this.state.isSignedIn)
 			return false;
 			
-		let profile = auth2.currentUser.get().getBasicProfile();
+		let profile = this.state.auth2.currentUser.get().getBasicProfile();
 		
 		let data = { 	date: this.state.time.toISOString(),
 						username: this.state.username,
@@ -64,7 +65,11 @@ export default class ConfirmBooking extends Component {
 					isBooking: false
 				});
 			}
-		}).catch(error => this.setState({isBooking: false}));
+		}).catch(error => this.setState({
+			isBooking: false,
+			errorTitle: "An unknown error occured",
+			errorMessage: "Please try again"
+		}));
 		
 		return false;	//Prevents page redirect
 	}
@@ -129,7 +134,7 @@ export default class ConfirmBooking extends Component {
 				  {this.state.confirmationMessage}
 				</Alert>
 			);
-		} else if(!this.state.isLoggedIn) {
+		} else if(!this.state.isSignedIn) {
 			bottom = (
 				<Alert color="warning">
 				  <strong>You must log in first.</strong>
