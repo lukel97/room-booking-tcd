@@ -3,16 +3,15 @@
 // Issue no.3: Cancelling for glassrooms -> gcancelling the rest
 
 import React, { Component } from 'react';
-import { Card, CardText, CardBlock, CardTitle, Button, Alert, Input, FormGroup } from 'reactstrap';	// need to import other stuff i'd say
+import { Container, Form, Card, CardText, CardBlock, CardTitle, Button, Alert, Input, FormGroup } from 'reactstrap';	// need to import other stuff i'd say
 
 export default class Bookings extends Component {
 
 	constructor(params) {
 		super(params);
     	this.state = {
-		    facility: this.props.route.facilities.filter(f=>f.getURLName() === this.props.params.facility)[0], 
-		    rooms: [],
-		    alertMessage: "null"
+		    facility: this.props.route.facilities.filter(f=>f.getURLName() === this.props.params.facility)[0],
+		    isFetching: false
 	    };
 	    
 	    this.cancelBooking = this.cancelBooking.bind(this);
@@ -27,13 +26,21 @@ export default class Bookings extends Component {
 		let username = encodeURIComponent(this.state.username);		// Using mine for now to test if it is working
 		let password = encodeURIComponent(this.state.password);	// Will need to update this to get user's password + username
 
+
+		let newRooms = this.state.rooms;
+		newRooms.filter(r => r.roomNumber === roomNumber)[0].isCancelling = true
+		this.setState({
+			rooms: newRooms
+		});
+
 		fetch("/facility/glass-rooms/room/" + roomNumber + "/cancel?username=" + username + "&password=" + password, { method: "post" })
 			.then(response => response.text())
 			.then(text => {
 				if(text === "success"){
+					let newRooms = this.state.rooms;
+					newRooms.filter(r => r.roomNumber === roomNumber)[0].isCancelled = true
 					this.setState({
-						rooms: this.state.rooms.filter(r => r.roomNumber !== roomNumber),
-						alertMessage: "success"
+						rooms: newRooms
 					});
 				}
 			});
@@ -47,57 +54,88 @@ export default class Bookings extends Component {
 		this.setState({password: e.target.value});
 	}
 
-  render() {
-  	let rooms = this.state.rooms.map(room => {
-  			let bookingDate = new Date(room.bookings[0]);
-  			let options = { weekday: "long", day: "numeric", month: "long",hour: "2-digit", minute: "2-digit"};
-  			let dateString = bookingDate.toLocaleString('en-GB', options);
-  			return (
-				<Card className="mt-4" key={room.roomNumber}>
-				
-					<CardBlock>
-					<CardTitle>Room {room.roomNumber}</CardTitle>
-						<CardText>Booked for {dateString}</CardText>
-						<Button onClick={() => {
-									this.cancelBooking(room.roomNumber);
-							}}>Cancel</Button>  
-					</CardBlock>
-				</Card>);
-		});
-
-		let getBookings = () => fetch("/facility/glass-rooms/bookings?username=" + this.state.username + "&password=" + this.state.password, { method: "get" })	// double check this is done correctly
+  	render() {
+  		let getBookings = (event) => {
+			event.preventDefault();
+			this.setState({isFetching: true});
+			fetch("/facility/glass-rooms/bookings?username=" + this.state.username + "&password=" + this.state.password, { method: "get" })	// double check this is done correctly
 			.then(response => response.json())
 			.then(rooms =>
 				this.setState({
-					rooms: rooms
+					rooms: rooms,
+					isFetching: false
 				})
 				, error => console.log);
-
-		var bottom;
-		if(this.state.alertMessage === "success"){
-			bottom = (
-				<Alert color="success">
-				<strong>Cancel Successfull.</strong> An email has been sent to testEmail@tcd.ie
-				</Alert>
+		};
+		
+		
+  		var content;
+  		if(this.state.rooms != null) {
+  			if(this.state.rooms.length <= 0) {
+  				content = (	<Alert color="info">
+								<strong>No bookings found</strong>
+								<br/>
+								Make one from <a href="/glass-rooms">here.</a>
+							</Alert>);
+  			} else {
+  				let profile = this.props.auth2.currentUser.get().getBasicProfile();
+				content = this.state.rooms.map(room => {
+					if(room.isCancelled) {
+						
+						return (<Alert color="success" key={`cancelSuccess${room.roomNumber}`}>
+									<strong>Cancel successful</strong>
+									<br/>
+									An email has been sent to {profile.getEmail()}
+								</Alert>);
+					}
+								
+					let bookingDate = new Date(room.bookings[0]);
+					let options = { weekday: "long", day: "numeric", month: "long",hour: "2-digit", minute: "2-digit"};
+					let dateString = bookingDate.toLocaleString('en-GB', options);
+					var buttonText = room.isCancelling ? "Cancelling..." : "Cancel";
+					var buttonDisabled = room.isCancelling;
+					return (
+						<Card className="mt-4" key={room.roomNumber}>
+							<CardBlock>
+							<CardTitle>Room {room.roomNumber}</CardTitle>
+								<CardText>Booked for {dateString}</CardText>
+								<Button onClick={() => {
+									this.cancelBooking(room.roomNumber);
+								}} disabled={buttonDisabled}>{buttonText}</Button>  
+							</CardBlock>
+						</Card>);
+				});
+			}
+		} else {
+			content = (
+				<Form onSubmit={getBookings}>
+					<FormGroup>
+					<Input type="text" placeholder="SCSS username" onChange={this.usernameChanged}/>
+					</FormGroup>
+					<FormGroup>
+					<Input type="password" placeholder="SCSS password" onChange={this.passwordChanged}/>
+					</FormGroup>
+					<FormGroup>
+						<Button type="submit" disabled={this.state.isFetching}>
+							{this.state.isFetching ? "Fetching..." : "Fetch bookings"}
+						</Button>
+					</FormGroup>
+				</Form>
 			);
 		}
 		return (
-      <div>
-			<FormGroup>
-			<Input type="text" placeholder="username" onChange={this.usernameChanged}/>
-			</FormGroup>
-			<FormGroup>
-			<Input type="password" placeholder="password" onChange={this.passwordChanged}/>
-			</FormGroup>
-			<Button onClick={getBookings}>Login</Button>
-      	{bottom}
-      	{rooms}
+     		<Container>
+     			<h2>Glass Room Bookings</h2>
+     			<br/>
+      			{content}
+      			<br/>
 				<Alert color="info">
 					<strong>Looking for your BLU/Hamilton/John Stearne bookings?</strong>
+					<br/>
 					You can cancel them via the link sent to your email address.
 				</Alert>
-      </div>
-    );
+      		</Container>
+    	);
   }
 }
 

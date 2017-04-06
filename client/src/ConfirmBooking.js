@@ -26,9 +26,10 @@ export default class ConfirmBooking extends Component {
 		this.setState({auth2: props.auth2, isSignedIn: props.isSignedIn});
 	}
 	
-	book() {
+	book(event) {
+		event.preventDefault();
 		if(!this.state.isSignedIn)
-			return false;
+			return;
 			
 		let profile = this.state.auth2.currentUser.get().getBasicProfile();
 		
@@ -70,8 +71,6 @@ export default class ConfirmBooking extends Component {
 			errorTitle: "An unknown error occured",
 			errorMessage: "Please try again"
 		}));
-		
-		return false;	//Prevents page redirect
 	}
 	
 	usernameChanged(e) {
@@ -103,10 +102,10 @@ export default class ConfirmBooking extends Component {
 				: null;
 		
 		let form = (
-				<Form>
+				<Form onSubmit={this.book}>
 					{scssLogin}
 					<FormGroup>
-						<Button type="submit" onClick={this.book} disabled={this.state.isBooking}>
+						<Button type="submit" disabled={this.state.isBooking}>
 							{this.state.isBooking ? "Booking..." : "Book now"}
 						</Button>
 					</FormGroup>
