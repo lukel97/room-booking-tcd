@@ -3,7 +3,6 @@ import { Link } from 'react-router';
 import { Container, ListGroup, ListGroupItem, Nav, NavItem, NavLink, Breadcrumb, BreadcrumbItem } from 'reactstrap';
 import ReactSVG from 'react-svg';
 import Amenities from '../../shared/Amenities.js';
-import 'date-input-polyfill';
 
 export default class Timetable extends Component {
   
@@ -150,10 +149,16 @@ export default class Timetable extends Component {
       justifyContent: "center",
       alignContent: "center",
     };
-
-		// let dateInputChanged = (e) => this.changeDate(new Date(e.target.value));
-		let dateInputChanged = (e) => console.log(e);
     
+//     let supportsDateInput = () => {
+// 		var input = document.createElement("input");
+// 		input.setAttribute("type", "date");
+// 		return input.type == "date";
+// 	}
+
+	// let calendar = (<DatePicker 	value={this.state.currentDate.toISOString()}
+// 									onChange={date => this.changeDate(new Date(date))}
+// 									showClearButton={false}/>);
     return (
       <Container>
         <Breadcrumb>
@@ -166,15 +171,17 @@ export default class Timetable extends Component {
             <Nav pills>
               <NavItem>
               {
-                this.state.isCalendarOpen ? (
-                  <NavLink>
-                    <input type="date" placeholder="23/02" size="10" valueAsDate={this.state.currentDate} onChange={event => console.log(event)}/>
-                  </NavLink>
-                ) : (
-                  <NavLink href="#" onClick={this.openCalendar}>
-                    Calendar
-                  </NavLink>
-                )
+              	<NavLink>
+              	</NavLink>
+                // this.state.isCalendarOpen ? (
+//                   <NavLink>
+// 						{calendar}
+//                   </NavLink>
+//                 ) : (
+//                   <NavLink href="#" onClick={this.openCalendar}>
+//                     Calendar
+//                   </NavLink>
+//                 )
               }
                 
               </NavItem>

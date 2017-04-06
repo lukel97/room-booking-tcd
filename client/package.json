@@ -4,13 +4,11 @@
   "private": true,
   "dependencies": {
     "bootstrap": "4.0.0-alpha.6",
-    "date-input-polyfill": "^2.13.0",
     "google-map-react": "^0.23.0",
     "react": "^15.4.2",
     "react-addons-css-transition-group": "^15.4.2",
     "react-addons-transition-group": "^15.4.2",
     "react-dom": "^15.4.2",
-    "react-google-login": "^2.8.5",
     "react-router": "^3.0.2",
     "react-scripts": "0.9.5",
     "react-svg": "^2.1.19",
