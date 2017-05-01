@@ -1,11 +1,17 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const glassRooms = require('./GlassRooms');
+const Keen = require('keen-js');
 const blu = require('./BLU');
 const app = express();
 const read = require('read');
 const path = require('path');
 const helpers = require('./Helpers');
+
+var keen = new Keen({
+	projectId: process.env['KEEN_PROJECT_ID'],
+	writeKey: process.env['KEEN_WRITE_KEY']
+});
 
 var username = "";
 var password = "";
@@ -24,43 +30,42 @@ app.post('/facility/:facility/room/:room/book', (req, res) => {
 	let fullName = req.body.fullName;
 	
 	let email = req.body.email;
+	const bookingEvent = {
+		"fullName": fullName,
+		"facility": req.params.facility,
+		"date": date
+	};
+	
+
+	let bookingPromise;
 	
 	switch(req.params.facility) {
 		case "glass-rooms":
-			glassRooms.makeGlassRoomBooking(username, password, fullName, date, req.params.room)
-				.then(response => res.end(JSON.stringify(response)))
-				.catch(error => {
-					console.log(error);
-					res.end("Internal server error");
-				});
+			bookingPromise = glassRooms.makeGlassRoomBooking(username, password, fullName, date, req.params.room);
 			break;
 		case "berkeley":
-			blu.makeBooking(givenName, familyName, email, blu.Facility.BERKELEY, date, req.params.room)
-				.then(response => res.end(JSON.stringify(response)))
-				.catch(error => {
-					console.log(error);
-					res.end("Internal server error");
-				});
+			bookingPromise = blu.makeBooking(givenName, familyName, email, blu.Facility.BERKELEY, date, req.params.room);
 			break;
 		case "hamilton":
-			blu.makeBooking(givenName, familyName, email, blu.Facility.HAMILTON, date, req.params.room)
-				.then(response => res.end(JSON.stringify(response)))
-				.catch(error => {
-					console.log(error);
-					res.end("Internal server error");
-				});
+			bookingPromise = blu.makeBooking(givenName, familyName, email, blu.Facility.HAMILTON, date, req.params.room);
 			break;
 		case "john-stearne":
-			blu.makeBooking(givenName, familyName, email, blu.Facility.JOHN_STEARNE, date, req.params.room)
-				.then(response => res.end(JSON.stringify(response)))
-				.catch(error => {
-					console.log(error);
-					res.end("Internal server error");
-				});
+			bookingPromise = blu.makeBooking(givenName, familyName, email, blu.Facility.JOHN_STEARNE, date, req.params.room);
 			break;
 		default:
 			res.end("Not a valid facility");
 	}
+
+	bookingPromise.then(response => res.end(JSON.stringify(response)))
+		.then(() => {
+			keen.addEvent("bookings", bookingEvent, (err, res) => {
+				if(err) console.log(err);
+			});
+		})
+		.catch(error => {
+			console.log(error);
+			res.end("Internal server error");
+		});
 	
 });
 
@@ -74,7 +79,16 @@ app.post('/facility/:name/room/:room/cancel', (req,res) =>{
 		//Wait for all bookings for that room to be cancelled
 		.then(cancelValues => Promise.all(cancelValues.map((value => glassRooms.cancelGlassRoomBooking(username, password, req.params.room, value)))))
 		//Then reply to the client
-		.then(() => res.end("success")).catch((error) => {
+		.then(() => {
+			res.end("success");
+			const cancelData = {
+				"facility": req.params.name,
+				"room": req.params.room
+			};
+			keen.addEvent("cancellings", cancelData, (res, err) => {
+				if(err)	console.log(err);
+			});
+		}).catch((error) => {
 			res.end();
 			console.log(error);
 		});
