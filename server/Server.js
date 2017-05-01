@@ -85,7 +85,7 @@ app.post('/facility/:name/room/:room/cancel', (req,res) =>{
 				"facility": req.params.name,
 				"room": req.params.room
 			};
-			keen.addEvent("cancellings", cancelData, (res, err) => {
+			keen.addEvent("cancellings", cancelData, (err, res) => {
 				if(err)	console.log(err);
 			});
 		}).catch((error) => {
