@@ -20,6 +20,12 @@ app.use(bodyParser.json());
 
 app.use(express.static(path.resolve(__dirname, '../client/build')));
 
+app.use((req, res, next) => {
+	if(req.headers['x-forwarded-proto'] !== 'https')
+		return res.redirect(301, ['https://', req.get('Host'), req.url].join(''));
+	return next;
+});
+
 app.post('/facility/:facility/room/:room/book', (req, res) => {
 	let date = new Date(req.body.date);
 	let username = req.body.username;
