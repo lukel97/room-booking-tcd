@@ -8,7 +8,8 @@
 	"license": "MIT",
 	"scripts": {
 		"start": "node server/Server.js",
-		"heroku-postbuild": "cd client && yarn install && yarn build"
+		"heroku-postbuild": "cd client && yarn install && yarn build",
+		"build": "cd client && npm install && npm run build"
 	},
 	"dependencies": {
 		"body-parser": "^1.17.1",
@@ -25,5 +26,16 @@
 		"node",
 		"heroku",
 		"react"
-	]
+	],
+	"now": {
+		"env": {
+			"scssUsername": "@scssusername",
+			"scssPassword": "@scsspassword",
+			"KEEN_API_URL": "https://api.keen.io:443",
+			"KEEN_PROJECT_ID": "59072cb90935ce40a59fb1cc",
+			"KEEN_READ_KEY": "@keenreadkey",
+			"KEEN_WRITE_KEY": "@keenwritekey",
+			"TZ": "Europe/London"
+		}
+	}
 }
