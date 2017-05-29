@@ -1,0 +1,45 @@
+GEM
+  remote: https://rubygems.org/
+  specs:
+    addressable (2.5.1)
+      public_suffix (~> 2.0, >= 2.0.2)
+    concurrent-ruby (1.0.5)
+    crack (0.4.3)
+      safe_yaml (~> 1.0.0)
+    graphql (1.5.13)
+    hashdiff (0.3.4)
+    mini_portile2 (2.1.0)
+    mustermann (1.0.0)
+    nokogiri (1.7.2)
+      mini_portile2 (~> 2.1.0)
+    public_suffix (2.0.5)
+    rack (2.0.3)
+    rack-protection (2.0.0)
+      rack
+    rack-test (0.6.3)
+      rack (>= 1.0)
+    safe_yaml (1.0.4)
+    sinatra (2.0.0)
+      mustermann (~> 1.0)
+      rack (~> 2.0)
+      rack-protection (= 2.0.0)
+      tilt (~> 2.0)
+    tilt (2.0.7)
+    webmock (3.0.1)
+      addressable (>= 2.3.6)
+      crack (>= 0.3.2)
+      hashdiff
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  concurrent-ruby
+  graphql
+  nokogiri
+  rack-test
+  sinatra
+  webmock
+
+BUNDLED WITH
+   1.15.0

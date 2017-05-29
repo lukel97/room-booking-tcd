@@ -1,0 +1,5 @@
+task :test do
+	Dir.chdir('tests') do
+		ruby 'bluTests.rb'
+	end
+end
