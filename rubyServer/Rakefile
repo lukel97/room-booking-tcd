@@ -1,5 +1,5 @@
 task :test do
 	Dir.chdir('tests') do
-		ruby 'bluTests.rb'
+		ruby 'testSuite.rb'
 	end
 end

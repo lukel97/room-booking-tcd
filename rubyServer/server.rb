@@ -6,11 +6,12 @@ require_relative 'glassRooms'
 require_relative 'blu'
 
 # read in environment variables in .env
-File.foreach '.env' do |line|
+envPath = "#{__dir__}/.env"
+File.open(envPath).each do |line|
 	key, value = line.chomp.split '='
 	ENV[key] = value
-end if File.file? '.env'
-
+end if File.file? envPath
+	
 $glassRooms = GlassRooms.new do |f|
 	f.name = 'Glass Rooms'
 	f.longitude = 84.1234

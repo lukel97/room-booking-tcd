@@ -4,15 +4,17 @@ require 'rack/test'
 require 'time'
 require 'test/unit'
 require 'webmock/test_unit'
-require_relative '../server'
-require_relative '../blu'
-
-WebMock.stub_request(:get, "http://tcd-ie.libcal.com/rooms_acc.php?cap=0&d=2017-05-30&gid=14647").
-	to_return(status: 200, body: File.open('results/berkeley2017-05-30.html.stub'))
-
-WebMock.allow_net_connect!
+require '../server'
+require '../blu'
 
 class TestBLU < Test::Unit::TestCase
+
+	def setup
+		WebMock.stub_request(:get, "http://tcd-ie.libcal.com/rooms_acc.php?cap=0&d=2017-05-30&gid=14647").
+			to_return(status: 200, body: File.open('results/berkeley2017-05-30.html.stub'))
+
+		WebMock.allow_net_connect!
+	end
 
 	include Rack::Test::Methods
 
@@ -36,7 +38,7 @@ class TestBLU < Test::Unit::TestCase
   end
 
 	def testBookings
-		bookings = @@facility.bookings Date.parse('2017-03-10'), @@facility.roomCapacities.keys
+		bookings = @@facility.bookings Date.parse('2017-03-10')
 
 		bookings.each { |k, bs| bs.each { |b| assert_kind_of Booking, b } }
 		assert_equal bookings[1].length, 7

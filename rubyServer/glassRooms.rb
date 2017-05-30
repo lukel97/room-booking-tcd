@@ -16,16 +16,16 @@ class GlassRooms < Facility
 
 		threads.each(&:join)
 
-		bookings
+		bookings.sort.to_h
 	end
 
 	def availableTimes(date, roomNumbers = @roomCapacities.keys)
 		bookings = bookings date, roomNumbers
-		roomNumbers.map do |roomNumber|
-			(0..23).map { |t| Time.parse "#{t}:00", date.to_time }.reject { |time|
+		Hash[roomNumbers.map do |roomNumber|
+			[roomNumber, (0..23).map { |t| Time.parse "#{t}:00", date.to_time }.reject { |time|
 				bookings[roomNumber].map(&:startTime).include? time
-			}.map { |startTime| AvailableSlot.new(startTime, startTime + 60 * 60) }
-		end
+			}.map { |startTime|  AvailableSlot.new(startTime, startTime + 60 * 60) }]
+		end]
 	end
 
 	def bookingsForRoom date, roomNumber
