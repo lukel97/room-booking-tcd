@@ -4,7 +4,6 @@ node_js:
 notifications:
   slack: progprojgroup24:g841RwdHna5JjgqrSJE5Ex85
 before_install:
-  - rvm install ruby --latest
-  - rvm use ruby --latest
+  - rvm use 2.4.1 --install
 script:
   - cd rubyServer && bundler install && rake test
