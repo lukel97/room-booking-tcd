@@ -16,11 +16,11 @@ class App extends Component {
     super(props);
     
     this.state = {
-    	auth2: null,
-    	isSignedIn: false
-	};
-	
-	this.signOut = this.signOut.bind(this);
+			auth2: null,
+			isSignedIn: false
+		};
+
+		this.signOut = this.signOut.bind(this);
   }
   
   componentDidMount() {

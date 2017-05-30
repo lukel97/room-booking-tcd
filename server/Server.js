@@ -105,6 +105,15 @@ app.get('/facility/:name/bookings', (req, res) => {
 			.then(times => res.end(JSON.stringify(times)), error => res.end("oops"));
 });
 
+exports.availableTimes = (facility, date) => {
+	switch(facility.getURLName()) {
+		case "glass-rooms":
+			return Promise.all(helpers.range(1, 9).map(glassRooms.getAvailableTimes.bind(null, date, username, password)))
+		default:
+			return
+	}
+}
+
 app.get('/facility/:name/availableTimes', (req, res) => {
 	if(!req.query.date) {
 		res.end("Need to supply a date");
