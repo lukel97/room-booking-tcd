@@ -7,3 +7,5 @@ before_install:
   - rvm use 2.4.1 --install
 script:
   - cd rubyServer && bundler install && rake test
+env:
+  - TZ=Europe/London
