@@ -8,7 +8,7 @@ require_relative '../server'
 require_relative '../blu'
 
 WebMock.stub_request(:get, "http://tcd-ie.libcal.com/rooms_acc.php?cap=0&d=2017-05-30&gid=14647").
-	to_return(status: 200, body: File.open('results/berkeleyStub2017-05-30.html'))
+	to_return(status: 200, body: File.open('results/berkeley2017-05-30.html.stub'))
 
 WebMock.allow_net_connect!
 
