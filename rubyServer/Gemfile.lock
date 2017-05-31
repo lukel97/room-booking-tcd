@@ -3,11 +3,17 @@ GEM
   specs:
     addressable (2.5.1)
       public_suffix (~> 2.0, >= 2.0.2)
+    codecov (0.1.10)
+      json
+      simplecov
+      url
     concurrent-ruby (1.0.5)
     crack (0.4.3)
       safe_yaml (~> 1.0.0)
+    docile (1.1.5)
     graphql (1.5.13)
     hashdiff (0.3.4)
+    json (2.1.0)
     mini_portile2 (2.1.0)
     mustermann (1.0.0)
     nokogiri (1.7.2)
@@ -19,12 +25,18 @@ GEM
     rack-test (0.6.3)
       rack (>= 1.0)
     safe_yaml (1.0.4)
+    simplecov (0.14.1)
+      docile (~> 1.1.0)
+      json (>= 1.8, < 3)
+      simplecov-html (~> 0.10.0)
+    simplecov-html (0.10.1)
     sinatra (2.0.0)
       mustermann (~> 1.0)
       rack (~> 2.0)
       rack-protection (= 2.0.0)
       tilt (~> 2.0)
     tilt (2.0.7)
+    url (0.3.2)
     webmock (3.0.1)
       addressable (>= 2.3.6)
       crack (>= 0.3.2)
@@ -34,6 +46,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  codecov
   concurrent-ruby
   graphql
   nokogiri
