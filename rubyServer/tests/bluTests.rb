@@ -4,14 +4,14 @@ require 'rack/test'
 require 'time'
 require 'test/unit'
 require 'webmock/test_unit'
-require '../server'
-require '../blu'
+require_relative '../server'
+require_relative '../blu'
 
 class TestBLU < Test::Unit::TestCase
 
 	def setup
 		WebMock.stub_request(:get, "http://tcd-ie.libcal.com/rooms_acc.php?cap=0&d=2017-05-30&gid=14647").
-			to_return(status: 200, body: File.open('results/berkeley2017-05-30.html.stub'))
+			to_return(status: 200, body: File.open("#{__dir__}/results/berkeley2017-05-30.html.stub"))
 
 		WebMock.allow_net_connect!
 	end
@@ -50,12 +50,12 @@ class TestBLU < Test::Unit::TestCase
 
 	def testGetBookings
 		get '/facility/berkeley/bookings', :date => '2017-04-12'
-		assert_equal File.read('results/berkeleyBookings2017-04-12.json').strip, last_response.body
+		assert_equal File.read("#{__dir__}/results/berkeleyBookings2017-04-12.json").strip, last_response.body
 	end
 
 	def testGetNoBookings
 		get '/facility/berkeley/bookings', :date => '2017-04-15'
-		assert_equal  File.read('results/berkeleyBookings2017-04-15.json').strip, last_response.body
+		assert_equal  File.read("#{__dir__}/results/berkeleyBookings2017-04-15.json").strip, last_response.body
 	end
 
 	def testAvailableTimes

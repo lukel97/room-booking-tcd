@@ -4,11 +4,8 @@ require 'rack/test'
 require 'time'
 require 'test/unit'
 require 'webmock/test_unit'
-require '../server'
-require '../glassRooms'
-
-WebMock.stub_request(:get, "http://tcd-ie.libcal.com/rooms_acc.php?cap=0&d=2017-05-30&gid=14647").
-	to_return(status: 200, body: File.open('results/berkeley2017-05-30.html.stub'))
+require_relative '../server'
+require_relative '../glassRooms'
 
 WebMock.allow_net_connect!
 
@@ -49,7 +46,7 @@ class GlassRoomTests < Test::Unit::TestCase
 
 	def testGetBookings
 		get '/facility/glass-rooms/bookings', :date => '2017-03-09'
-		assert_equal File.read('results/glassRoomsBookings2017-03-09.json').strip, last_response.body
+		assert_equal File.read("#{__dir__}/results/glassRoomsBookings2017-03-09.json").strip, last_response.body
 	end
 
 	def testAvailableTimes
@@ -62,7 +59,7 @@ class GlassRoomTests < Test::Unit::TestCase
 
 	def testGetAvailableTimes
 		get '/facility/glass-rooms/availableTimes', :date => '2017-03-10'
-		assert_equal File.read('results/glassRoomsAvailableTimes2017-03-10.json').strip, last_response.body
+		assert_equal File.read("#{__dir__}/results/glassRoomsAvailableTimes2017-03-10.json").strip, last_response.body
 	end
 
 end
