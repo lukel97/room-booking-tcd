@@ -7,6 +7,6 @@ before_install:
   - rvm use 2.4.1 --install
 script:
   - cd client && yarn && yarn test && cd ../
-  - cd rubyServer && bundler install && rake test
+  - bundler install && rake test
 env:
   - TZ=Europe/London
