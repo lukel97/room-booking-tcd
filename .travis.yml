@@ -5,7 +5,7 @@ notifications:
   slack: progprojgroup24:g841RwdHna5JjgqrSJE5Ex85
 before_install:
   - rvm use 2.4.1 --install
-script:
+before_script:
   - cd rubyServer && bundler install && rake test
 env:
   - TZ=Europe/London
