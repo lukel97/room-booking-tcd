@@ -16,7 +16,7 @@ GEM
     json (2.1.0)
     mini_portile2 (2.1.0)
     mustermann (1.0.0)
-    nokogiri (1.8.1)
+    nokogiri (1.8.2)
       mini_portile2 (~> 2.1.0)
     public_suffix (2.0.5)
     rack (2.0.3)
