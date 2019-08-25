@@ -4286,9 +4286,9 @@ react-scripts@0.9.5:
   optionalDependencies:
     fsevents "1.0.17"
 
-react-svg@^2.1.19:
-  version "2.1.19"
-  resolved "https://registry.yarnpkg.com/react-svg/-/react-svg-2.1.19.tgz#4ca44e8be9c4d4f0621d8494573a2ff168f8402e"
+react-svg@^2.2.18:
+  version "2.2.18"
+  resolved "https://registry.yarnpkg.com/react-svg/-/react-svg-2.2.18.tgz#78985d5db84813d8e57f5e762951246774bf8644"
   dependencies:
     svg-injector "^1.1.3"
 
