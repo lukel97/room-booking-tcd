@@ -4534,9 +4534,9 @@ react-proxy@^3.0.0-alpha.0:
   dependencies:
     lodash "^4.6.1"
 
-react-svg@^2.1.19:
-  version "2.1.21"
-  resolved "https://registry.yarnpkg.com/react-svg/-/react-svg-2.1.21.tgz#0caf34002649542967f04e197480d784768e914c"
+react-svg@^2.2.18:
+  version "2.2.18"
+  resolved "https://registry.yarnpkg.com/react-svg/-/react-svg-2.2.18.tgz#78985d5db84813d8e57f5e762951246774bf8644"
   dependencies:
     svg-injector "^1.1.3"
 
